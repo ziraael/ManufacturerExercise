@@ -1,4 +1,4 @@
-namespace OptionPack.Api
+namespace OptionPackService.Api
 {
     public class WeatherForecast
     {

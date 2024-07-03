@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OptionPack.Domain\OptionPack.Domain.csproj" />
+    <ProjectReference Include="..\OptionPackService.Domain\OptionPackService.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace OptionPack.Api.Controllers
+namespace OptionPackService.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]

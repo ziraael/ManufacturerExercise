@@ -8,17 +8,17 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["OptionPack.Api/OptionPack.Api.csproj", "OptionPack.Api/"]
-RUN dotnet restore "./OptionPack.Api/OptionPack.Api.csproj"
+COPY ["OptionPackService.Api/OptionPackService.Api.csproj", "OptionPackService.Api/"]
+RUN dotnet restore "./OptionPackService.Api/OptionPackService.Api.csproj"
 COPY . .
-WORKDIR "/src/OptionPack.Api"
-RUN dotnet build "./OptionPack.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/OptionPackService.Api"
+RUN dotnet build "./OptionPackService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./OptionPack.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./OptionPackService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "OptionPack.Api.dll"]
+ENTRYPOINT ["dotnet", "OptionPackService.Api.dll"]

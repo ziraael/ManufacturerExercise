@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OptionPack.Domain\OptionPack.Domain.csproj" />
-    <ProjectReference Include="..\OptionPack.Infrastructure\OptionPack.Infrastructure.csproj" />
+    <ProjectReference Include="..\OptionPackService.Domain\OptionPackService.Domain.csproj" />
+    <ProjectReference Include="..\OptionPackService.Infrastructure\OptionPackService.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
