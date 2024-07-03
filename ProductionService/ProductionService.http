@@ -1,6 +1,0 @@
-@ProductionService_HostAddress = http://localhost:5199
-
-GET {{ProductionService_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
