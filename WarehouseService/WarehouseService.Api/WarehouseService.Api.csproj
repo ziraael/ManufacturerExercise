@@ -13,4 +13,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WarehouseService.Domain\WarehouseService.Domain.csproj" />
+    <ProjectReference Include="..\WarehouseService.Infrastructure\WarehouseService.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
