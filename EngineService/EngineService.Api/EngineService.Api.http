@@ -1,0 +1,6 @@
+@EngineService.Api_HostAddress = http://localhost:5272
+
+GET {{EngineService.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
