@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Api.Configurations;
 using OrderService.Infrastructure;
@@ -18,15 +19,28 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add services to the container.
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.RegisterRequestHandlers();
+//builder.Services.AddMassTransit(busConfig => {
+//    busConfig.SetKebabCaseEndpointNameFormatter();
+//    busConfig.UsingRabbitMq((context, configurator) => {
+//        configurator.Host(new Uri(builder.Configuration["MessageBroker"]!), y => {
+//            y.Username(builder.Configuration["MessageBroker:Username"]);
+//            y.Username(builder.Configuration["MessageBroker:Password"]);
+//        });
+
+//        configurator.ConfigureEndpoints(context);
+//    });
+//});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthorization();
 

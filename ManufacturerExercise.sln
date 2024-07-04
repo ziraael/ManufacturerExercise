@@ -61,47 +61,52 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{39A390
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AssemblyService.Application", "AssemblyService.Application", "{3325EF7F-FFA2-41DD-A5F8-D399E3CE44C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyService.Api", "AssemblyService\AssemblyService.Api\AssemblyService.Api.csproj", "{3638CAAC-341B-4679-9EDB-DDA07B970517}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssemblyService.Api", "AssemblyService\AssemblyService.Api\AssemblyService.Api.csproj", "{3638CAAC-341B-4679-9EDB-DDA07B970517}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyService.Domain", "AssemblyService\AssemblyService.Domain\AssemblyService.Domain.csproj", "{5749544E-EB02-48D0-B3DA-0ACC8D539612}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssemblyService.Domain", "AssemblyService\AssemblyService.Domain\AssemblyService.Domain.csproj", "{5749544E-EB02-48D0-B3DA-0ACC8D539612}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyService.Infrastructure", "AssemblyService\AssemblyService.Infrastructure\AssemblyService.Infrastructure.csproj", "{8FB04841-F210-44F4-9C22-B2E942912CC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssemblyService.Infrastructure", "AssemblyService\AssemblyService.Infrastructure\AssemblyService.Infrastructure.csproj", "{8FB04841-F210-44F4-9C22-B2E942912CC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChassisService.Api", "ChassisService\ChassisService.Api\ChassisService.Api.csproj", "{F92505B7-BF84-49BD-8AAF-A0DFDCA30991}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChassisService.Api", "ChassisService\ChassisService.Api\ChassisService.Api.csproj", "{F92505B7-BF84-49BD-8AAF-A0DFDCA30991}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChassisService.Domain", "ChassisService\ChassisService.Domain\ChassisService.Domain.csproj", "{E6735417-A911-4B49-8458-008B9CBC2489}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChassisService.Domain", "ChassisService\ChassisService.Domain\ChassisService.Domain.csproj", "{E6735417-A911-4B49-8458-008B9CBC2489}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChassisService.Infrastructure", "ChassisService\ChassisService.Infrastructure\ChassisService.Infrastructure.csproj", "{B61201D3-3A53-4FBF-A39D-BA06A3E54A41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChassisService.Infrastructure", "ChassisService\ChassisService.Infrastructure\ChassisService.Infrastructure.csproj", "{B61201D3-3A53-4FBF-A39D-BA06A3E54A41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineService.Api", "EngineService\EngineService.Api\EngineService.Api.csproj", "{A4D45379-60D8-4524-9E91-E0918B850C92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngineService.Api", "EngineService\EngineService.Api\EngineService.Api.csproj", "{A4D45379-60D8-4524-9E91-E0918B850C92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineService.Domain", "EngineService\EngineService.Domain\EngineService.Domain.csproj", "{93EBB24B-F789-445D-A512-BC72F5C38719}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngineService.Domain", "EngineService\EngineService.Domain\EngineService.Domain.csproj", "{93EBB24B-F789-445D-A512-BC72F5C38719}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineService.Infrastructure", "EngineService\EngineService.Infrastructure\EngineService.Infrastructure.csproj", "{7A372769-A46B-4DCA-A54C-C54F79398F91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngineService.Infrastructure", "EngineService\EngineService.Infrastructure\EngineService.Infrastructure.csproj", "{7A372769-A46B-4DCA-A54C-C54F79398F91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.Api", "NotificationService\NotificationService.Api\NotificationService.Api.csproj", "{9BC4BF77-F925-497A-BCF4-7885404540CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService.Api", "NotificationService\NotificationService.Api\NotificationService.Api.csproj", "{9BC4BF77-F925-497A-BCF4-7885404540CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.Domain", "NotificationService\NotificationService.Domain\NotificationService.Domain.csproj", "{1C8A7275-173B-42C6-A3FF-A5A5FDA214EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService.Domain", "NotificationService\NotificationService.Domain\NotificationService.Domain.csproj", "{1C8A7275-173B-42C6-A3FF-A5A5FDA214EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.Infrastructure", "NotificationService\NotificationService.Infrastructure\NotificationService.Infrastructure.csproj", "{E2CBEC97-0584-41D4-AFFE-AEB2976322C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService.Infrastructure", "NotificationService\NotificationService.Infrastructure\NotificationService.Infrastructure.csproj", "{E2CBEC97-0584-41D4-AFFE-AEB2976322C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OptionPackService.Api", "OptionPackService\OptionPackService.Api\OptionPackService.Api.csproj", "{7037F523-CBD7-4C67-BB30-63D23455A0AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptionPackService.Api", "OptionPackService\OptionPackService.Api\OptionPackService.Api.csproj", "{7037F523-CBD7-4C67-BB30-63D23455A0AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OptionPackService.Domain", "OptionPackService\OptionPackService.Domain\OptionPackService.Domain.csproj", "{AADF1B8B-8539-4CE8-ACB4-E0D501CB8DDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptionPackService.Domain", "OptionPackService\OptionPackService.Domain\OptionPackService.Domain.csproj", "{AADF1B8B-8539-4CE8-ACB4-E0D501CB8DDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OptionPackService.Infrastructure", "OptionPackService\OptionPackService.Infrastructure\OptionPackService.Infrastructure.csproj", "{2F80350E-F5EB-46C4-A779-9C7611BE76B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptionPackService.Infrastructure", "OptionPackService\OptionPackService.Infrastructure\OptionPackService.Infrastructure.csproj", "{2F80350E-F5EB-46C4-A779-9C7611BE76B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Api", "OrderService\OrderService.Api\OrderService.Api.csproj", "{CB8E1885-F16B-42E7-B4D7-2E985A26114E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Api", "OrderService\OrderService.Api\OrderService.Api.csproj", "{CB8E1885-F16B-42E7-B4D7-2E985A26114E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Domain", "OrderService\OrderService.Domain\OrderService.Domain.csproj", "{494AE9B9-FE22-4EA5-B69A-A519A2285C50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Domain", "OrderService\OrderService.Domain\OrderService.Domain.csproj", "{494AE9B9-FE22-4EA5-B69A-A519A2285C50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Infrastructure", "OrderService\OrderService.Infrastructure\OrderService.Infrastructure.csproj", "{3D96719D-72F7-481D-BD21-AF406CB00322}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService.Infrastructure", "OrderService\OrderService.Infrastructure\OrderService.Infrastructure.csproj", "{3D96719D-72F7-481D-BD21-AF406CB00322}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseService.Api", "WarehouseService\WarehouseService.Api\WarehouseService.Api.csproj", "{3FFBFDAC-6BC4-4F7E-A0C9-9023BE499904}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseService.Api", "WarehouseService\WarehouseService.Api\WarehouseService.Api.csproj", "{3FFBFDAC-6BC4-4F7E-A0C9-9023BE499904}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseService.Domain", "WarehouseService\WarehouseService.Domain\WarehouseService.Domain.csproj", "{7A6CBF9A-51F0-4C23-B916-7FCB4686ED8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseService.Domain", "WarehouseService\WarehouseService.Domain\WarehouseService.Domain.csproj", "{7A6CBF9A-51F0-4C23-B916-7FCB4686ED8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseService.Infrastructure", "WarehouseService\WarehouseService.Infrastructure\WarehouseService.Infrastructure.csproj", "{D35D4D3F-5F65-4901-A0C9-476110BFC7DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseService.Infrastructure", "WarehouseService\WarehouseService.Infrastructure\WarehouseService.Infrastructure.csproj", "{D35D4D3F-5F65-4901-A0C9-476110BFC7DB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9ADCDBB8-0547-43B4-9BC9-D1EDEA81C19C}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

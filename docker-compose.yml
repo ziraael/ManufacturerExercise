@@ -1,0 +1,36 @@
+services:
+  order-service:
+    image: order-service:latest
+    build:
+      context: .
+      dockerfile: OrderService/OrderService.Api/Dockerfile
+    ports:
+      - "5001:8080"
+    depends_on:
+      - rabbitmq
+  
+  # notification-service:
+  #   image: notification-service:latest
+  #   build:
+  #     context: /NotificationService/NotificationService.Api
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5002:80"
+  #   depends_on:
+  #     - rabbitmq
+
+  # warehouse-service:
+  #   image: warehouse-service:latest
+  #   build:
+  #     context: /WarehouseService/WarehouseService.Api
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5003:80"
+  #   depends_on:
+  #     - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
