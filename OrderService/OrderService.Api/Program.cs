@@ -19,17 +19,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add services to the container.
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.RegisterRequestHandlers();
-//builder.Services.AddMassTransit(busConfig => {
-//    busConfig.SetKebabCaseEndpointNameFormatter();
-//    busConfig.UsingRabbitMq((context, configurator) => {
-//        configurator.Host(new Uri(builder.Configuration["MessageBroker"]!), y => {
-//            y.Username(builder.Configuration["MessageBroker:Username"]);
-//            y.Username(builder.Configuration["MessageBroker:Password"]);
-//        });
+builder.Services.AddMassTransit(busConfig =>
+{
+    //busConfig.SetKebabCaseEndpointNameFormatter();
+    busConfig.UsingRabbitMq((context, configurator) =>
+    {
+        configurator.Host(new Uri(builder.Configuration["MessageBroker:Host"]!), y =>
+        {
+            y.Username(builder.Configuration["MessageBroker:Username"]!);
+            y.Username(builder.Configuration["MessageBroker:Password"]!);
+        });
+        configurator.ConfigureEndpoints(context);
 
-//        configurator.ConfigureEndpoints(context);
-//    });
-//});
+    });
+});
 
 var app = builder.Build();
 

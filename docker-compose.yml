@@ -19,18 +19,21 @@ services:
   #   depends_on:
   #     - rabbitmq
 
-  # warehouse-service:
-  #   image: warehouse-service:latest
-  #   build:
-  #     context: /WarehouseService/WarehouseService.Api
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "5003:80"
-  #   depends_on:
-  #     - rabbitmq
+  warehouse-service:
+    image: warehouse-service:latest
+    build:
+      context: .
+      dockerfile: WarehouseService/WarehouseService.Api/Dockerfile
+    ports:
+      - "5003:80"
+    depends_on:
+      - rabbitmq
 
   rabbitmq:
     image: rabbitmq:3-management
+    environment:
+        - RABBITMQ_DEFAULT_USER=guest
+        - RABBITMQ_DEFAULT_PASS=guest
     ports:
       - "5672:5672"
       - "15672:15672"

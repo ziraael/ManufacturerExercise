@@ -1,10 +1,8 @@
-using System.Text;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Api.OrderService.Application.Requests;
 using OrderService.Domain.Entities;
-//using RabbitMQ.Client;
-//using RabbitMQ.Client.Events;
 
 namespace OrderService.Api.Controllers
 {
@@ -13,13 +11,16 @@ namespace OrderService.Api.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public OrderController(IMediator mediator)
+        private readonly IPublishEndpoint _publishEndpoint;
+
+        public OrderController(IMediator mediator, IPublishEndpoint publishEndpoint)
         {
             _mediator = mediator;
+            _publishEndpoint = publishEndpoint;
         }
 
-        [HttpGet(nameof(GetOrderAsync))]
-        public async Task<Order?> GetOrderAsync(int orderId)
+        [HttpGet(nameof(GetOrder))]
+        public async Task<Order?> GetOrder(int orderId)
         {
             //var factory = new ConnectionFactory { HostName = "localhost" };
             //using var connection = factory.CreateConnection();
@@ -56,16 +57,39 @@ namespace OrderService.Api.Controllers
 
             //Console.WriteLine(" Press [enter] to exit.");
             //Console.ReadLine();
+            await _publishEndpoint.Publish(new OrderCreatedEvent
+            {
+                Id = new Guid(),
+                CreatedAt = new DateTime()
+            });
             var orderDetails = await _mediator.Send(new GetOrderRequest() { OrderId = orderId });
             
             return orderDetails;
         }
 
-        [HttpPost(nameof(CreateOrderAsync))]
-        public async Task<Order> CreateOrderAsync(Order order)
+        [HttpPost(nameof(CreateOrder))]
+        public async Task<IActionResult> CreateOrder(Order order)
         {
-            var orderId = await _mediator.Send(new CreateOrderRequest() { Order = order });
-            return orderId;
+            //create the order and 
+            await _publishEndpoint.Publish(order);
+            //var orderId = await _mediator.Send(new CreateOrderRequest() { Order = order });
+            return Ok();
+        }
+
+        [HttpPost(nameof(CancelOrder))]
+        public async Task<IActionResult> CancelOrder(Guid orderId)
+        {
+            //await _publishEndpoint.Publish(order);
+            //var orderId = await _mediator.Send(new CreateOrderRequest() { Order = order });
+            return Ok();
+        }
+
+        [HttpPost(nameof(ChangeOrderStatus))]
+        public async Task<IActionResult> ChangeOrderStatus(Guid orderId)
+        {
+            //await _publishEndpoint.Publish(order);
+            //var orderId = await _mediator.Send(new CreateOrderRequest() { Order = order });
+            return Ok();
         }
     }
 }
