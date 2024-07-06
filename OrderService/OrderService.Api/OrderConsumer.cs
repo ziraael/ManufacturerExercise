@@ -1,6 +1,5 @@
 ﻿using MassTransit;
 using OrderService.Domain.Entities;
-using OrderService.Domain.Entities;
 
 namespace OrderService.Api
 {

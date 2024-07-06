@@ -1,4 +1,4 @@
-namespace WarehouseService.Domain.Entities
+namespace OrderService.Domain.Entities
 {
     public class Customer
     {

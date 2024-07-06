@@ -24,13 +24,11 @@ builder.Services.AddMassTransit(busConfig =>
     //busConfig.SetKebabCaseEndpointNameFormatter();
     busConfig.UsingRabbitMq((context, configurator) =>
     {
-        configurator.Host(new Uri(builder.Configuration["MessageBroker:Host"]!), y =>
+        configurator.Host("localhost", "/", y =>
         {
             y.Username(builder.Configuration["MessageBroker:Username"]!);
             y.Username(builder.Configuration["MessageBroker:Password"]!);
         });
-        configurator.ConfigureEndpoints(context);
-
     });
 });
 

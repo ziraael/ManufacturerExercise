@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OrderService.Infrastructure;
 
@@ -11,9 +12,11 @@ using OrderService.Infrastructure;
 namespace OrderService.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240706152455_idChanges")]
+    partial class idChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,26 +31,17 @@ namespace OrderService.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("ChassisId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("ChassisColor")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("EngineType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<Guid>("EngineId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("IsCanceled")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsReadyForCollection")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<Guid>("OptionPackId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime(6)");
+                    b.Property<string>("OptionPack")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 

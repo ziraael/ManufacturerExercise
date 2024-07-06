@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WarehouseService.Domain.Entities;
+using OrderService.Domain.Entities;
 
 namespace WarehouseService.Api.Controllers
 {
@@ -28,12 +28,12 @@ namespace WarehouseService.Api.Controllers
             return Ok();
         }
 
-        public bool IsBeforeCollection(Guid orderId)
-        {
-            var res = false;
-            //check is before collection
-            return res;
-        }
+        //public bool IsBeforeCollection(Guid orderId)
+        //{
+        //    var res = false;
+        //    //check is before collection
+        //    return res;
+        //}
     }
 
 }
