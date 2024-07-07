@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using OrderService.Domain.Entities;
 using System.Reflection;
 
@@ -6,10 +7,11 @@ namespace OrderService.Infrastructure.Repositories;
 public class OrderRepository: IOrderRepository
 {
     private readonly ApplicationDbContext _context;
-
-    public OrderRepository(ApplicationDbContext context)
+    //private ILogger _logger;
+    public OrderRepository(ApplicationDbContext context/*, ILogger logger*/)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
+        //_logger = logger;
     }
 
     public bool CancelOrder(Guid orderId)
@@ -32,6 +34,7 @@ public class OrderRepository: IOrderRepository
         }
         catch (Exception ex)
         {
+            //_logger.LogError(ex, "An issue occurred while trying to cancel your order!");
             throw;
         }
     }
@@ -65,6 +68,7 @@ public class OrderRepository: IOrderRepository
         }
         catch (Exception ex)
         {
+           // _logger.LogError(ex, "An issue occured while trying to change order status!");
             throw;
         }
     }
@@ -83,6 +87,7 @@ public class OrderRepository: IOrderRepository
         }
         catch(Exception ex)
         {
+            //_logger.LogError(ex, "An issue occured while trying to create order!");
             throw;
         }
     }

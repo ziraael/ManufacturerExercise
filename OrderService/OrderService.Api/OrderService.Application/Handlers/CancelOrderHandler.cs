@@ -1,5 +1,4 @@
-﻿using MassTransit;
-using MediatR;
+﻿using MediatR;
 using OrderService.Api.OrderService.Application.Requests;
 
 namespace OrderService.Api.OrderService.Application.Handlers
@@ -8,20 +7,14 @@ namespace OrderService.Api.OrderService.Application.Handlers
     {
         //Inject Validators 
         private readonly IOrderRepository _orderRepository;
-        private IPublishEndpoint _publishEndpoint;
-        public CancelOrderHandler(IOrderRepository orderRepository, IPublishEndpoint publishEndpoint)
+        public CancelOrderHandler(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
-            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<bool> Handle(CancelOrderRequest request, CancellationToken cancellationToken)
         {
-            var order = _orderRepository.CancelOrder(request.OrderId);
-
-            //inform that i canceled the order
-            await _publishEndpoint.Publish(order);
-            return order;
+            return _orderRepository.CancelOrder(request.OrderId);
         }
     }
 }

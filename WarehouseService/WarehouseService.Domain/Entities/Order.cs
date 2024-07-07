@@ -1,3 +1,5 @@
+using WarehouseService.Domain.Entities;
+
 namespace OrderService.Domain.Entities
 {
     public class Order
@@ -10,5 +12,8 @@ namespace OrderService.Domain.Entities
         public Guid EngineId { get; set; }
         public Guid ChassisId { get; set; }
         public Guid OptionPackId { get; set; }
+        public virtual Product Engine { get; set; }
+        public virtual Product Chassis { get; set; }
+        public virtual Product OptionPack { get; set; }
     }
 }

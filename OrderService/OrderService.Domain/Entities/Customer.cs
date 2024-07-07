@@ -10,11 +10,5 @@ namespace OrderService.Domain.Entities
 
         // Navigation properties
         public ICollection<Order> Orders { get; set; }
-
-        // Domain logic
-        public string GetFullName()
-        {
-            return $"{FirstName} {LastName}";
-        }
     }
 }

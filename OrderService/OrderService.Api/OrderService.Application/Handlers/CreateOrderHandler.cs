@@ -1,7 +1,6 @@
 using MassTransit;
 using MediatR;
 using OrderService.Api.OrderService.Application.Requests;
-using OrderService.Domain.Entities;
 
 namespace OrderService.Api.OrderService.Application.Handlers
 {
