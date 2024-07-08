@@ -24,6 +24,7 @@ public class EngineRepository : IEngineRepository
         {
             Engine engine = new Engine
             {
+                ProductId = order.EngineId,
                 StartedProduction = DateTime.Now,
                 EndedProduction = null,
                 OrderId = order.Id,

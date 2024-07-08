@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WarehouseService.Infrastructure;
 
@@ -11,9 +12,11 @@ using WarehouseService.Infrastructure;
 namespace WarehouseService.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240708125407_orderIdAdd")]
+    partial class orderIdAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,19 +31,19 @@ namespace WarehouseService.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("ChassisId")
+                    b.Property<Guid>("ChassisId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("EngineId")
+                    b.Property<Guid>("EngineId")
                         .HasColumnType("char(36)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<Guid?>("OptionPackId")
+                    b.Property<Guid>("OptionPackId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("OrderId")
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");

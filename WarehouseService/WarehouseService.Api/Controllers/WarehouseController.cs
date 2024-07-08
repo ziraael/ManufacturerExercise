@@ -17,17 +17,10 @@ namespace WarehouseService.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost(nameof(UpdateStock))]
-        public async Task<bool> UpdateStock([FromBody] Order order)
+        [HttpPost(nameof(CheckStock))]
+        public async Task<bool> CheckStock([FromBody] Order order)
         {
-            var res = await _mediator.Send(new UpdateStockRequest() { Order = order });
-
-            if (res > 0)
-            {
-                return true;
-            }
-
-            return false;
+            return await _mediator.Send(new CheckStockRequest() { Order = order });
         }
 
         [HttpPost(nameof(CreateProduct))]

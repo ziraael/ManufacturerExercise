@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EngineService.Domain.Entities
+namespace WarehouseService.Domain.DTOs
 {
-    public class Engine
+    public class StockDTO
     {
         public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
         public Guid ProductId { get; set; }
-        public DateTime StartedProduction { get; set; }
-        public DateTime? EndedProduction { get; set; }
+        public Guid WarehouseId { get; set; }
+        public int Quantity { get; set; }
+        public Guid OrderId { get; set; }
     }
 }

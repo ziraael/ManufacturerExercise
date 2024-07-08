@@ -3,7 +3,7 @@ using OrderService.Domain.Entities;
 
 namespace WarehouseService.Api.WarehouseService.Application.Requests
 {
-    public class UpdateStockRequest : IRequest<int>
+    public class CheckStockRequest : IRequest<bool>
     {
         public Order Order { get; set; }
     }

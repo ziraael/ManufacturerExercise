@@ -1,7 +1,9 @@
-﻿using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using EngineService.Domain.Entities;
+using MassTransit;
+using MediatR;
 using OrderService.Domain.Entities;
+using System.Text.Json;
+using WarehouseService.Domain.DTOs;
 using WarehouseService.Domain.Entities;
 
 namespace WarehouseService.Infrastructure.Repositories;
@@ -11,109 +13,175 @@ public class WarehouseRepository : IWarehouseRepository
     private readonly ApplicationDbContext _context;
     //private ILogger _logger;
     private readonly ISendEndpointProvider _sendEndpointProvider;
-
-    public WarehouseRepository(ApplicationDbContext context/*, ILogger logger*/, ISendEndpointProvider sendEndpointProvider)
+    private IMediator _mediator;
+    public WarehouseRepository(ApplicationDbContext context/*, ILogger logger*/, ISendEndpointProvider sendEndpointProvider, IMediator mediator)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         //_logger = logger;
         _sendEndpointProvider = sendEndpointProvider ?? throw new ArgumentNullException();
+        _mediator = mediator;
     }
 
-    public bool CheckStock(Order order)
+    public async Task<int> AddEngineToStock(Engine engine)
     {
         try
         {
-            var warehouses = _context.Warehouses.ToList();
+            var hasStock = _context.Stocks.Where(x => x.ProductId == engine.Id).FirstOrDefault();
+            var partForAssemble = new List<StockDTO>();
 
-            if (warehouses.Any())
+            if (hasStock == null)
             {
-               // var hasEngine = warehouse
+                Stock stock = new Stock
+                {
+                    ProductId = engine.ProductId,
+                    WarehouseId = new Guid("dbe9af41-a908-40f5-8460-27bb1dc1d454"),
+                    Quantity = 1
+                };
+
+                _context.Stocks.Add(stock);
+
+                StockDTO stockDto = new StockDTO
+                {
+                    ProductId = stock.ProductId,
+                    WarehouseId = stock.WarehouseId,
+                    Quantity = stock.Quantity,
+                    OrderId = engine.OrderId
+                };
+
+                partForAssemble.Add(stockDto);
             }
-            //_context.Warehouses.Add(warehouse);
-            _context.SaveChanges();
-            return true;
+            else
+            {
+                hasStock.Quantity += 1;
+                _context.Stocks.Update(hasStock);
+
+                StockDTO stockDto = new StockDTO
+                {
+                    ProductId = hasStock.ProductId,
+                    WarehouseId = hasStock.WarehouseId,
+                    Quantity = hasStock.Quantity,
+                    OrderId = engine.OrderId
+                };
+
+                partForAssemble.Add(stockDto);
+            }
+
+            var savedChanges = await _context.SaveChangesAsync();
+
+            AssembleVehicle(partForAssemble);
+
+            return savedChanges;
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create warehouse!");
+            //_logger.LogError(ex, "An issue occured while trying to create product!");
             throw;
         }
     }
 
-    public async Task<int> UpdateStock(Order order)
+    public async Task<bool> CheckStock(Order order)
     {
         try
         {
-            var engineProduct = _context.Products.FirstOrDefault(x => x.Id == order.EngineId);
+            //proceed if there arent any assembled vehicles
+            if (!CheckAssembledVehicleStock(order)) {
+                var engineProduct = _context.Products.FirstOrDefault(x => x.Id == order.EngineId);
 
-            if (engineProduct != null)
-            {
-                //does stock exist for engine?
-                var hasStock = _context.Stocks.Where(x => x.ProductId == engineProduct.Id);
+                List<StockDTO> isForAssembly = new List<StockDTO>();
 
-                //no, produce it
-                if (!hasStock.Any())
+                if (engineProduct != null)
                 {
-                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-engine-queue"));
+                    //does stock exist for engine?
+                    var hasStock = _context.Stocks.Where(x => x.ProductId == engineProduct.Id).FirstOrDefault();
 
-                    await endpoint.Send(order);
+                    //no, produce it
+                    if (hasStock == null)
+                    {
+                        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-engine-queue"));
+
+                        await endpoint.Send(order);
+                    }
+                    //send it for assembly
+                    else
+                    {
+                        StockDTO stock = new StockDTO
+                        {
+                            ProductId = hasStock.ProductId,
+                            WarehouseId = hasStock.WarehouseId,
+                            Quantity = hasStock.Quantity,
+                            OrderId = order.Id
+                        };
+
+                        isForAssembly.Add(stock);
+                    }
                 }
-                //go assemble, call assembly service
-                else
-                {
-                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assembly-service-queue"));
 
-                    await endpoint.Send(order);
+                var chassisProduct = _context.Products.FirstOrDefault(x => x.Id == order.ChassisId);
+
+                if (chassisProduct != null)
+                {
+                    //does stock exist for chassis?
+                    var hasStock = _context.Stocks.Where(x => x.ProductId == chassisProduct.Id).FirstOrDefault();
+
+                    //no, produce it
+                    if (hasStock == null)
+                    {
+                        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-chassis-queue"));
+
+                        await endpoint.Send(order);
+                    }
+                    //go assemble, call assembly service
+                    else
+                    {
+                        StockDTO stock = new StockDTO
+                        {
+                            ProductId = hasStock.ProductId,
+                            WarehouseId = hasStock.WarehouseId,
+                            Quantity = hasStock.Quantity,
+                            OrderId = order.Id
+                        };
+
+                        isForAssembly.Add(stock);
+                    }
+                }
+
+                var optionPackProduct = _context.Products.FirstOrDefault(x => x.Id == order.OptionPackId);
+
+                if (optionPackProduct != null)
+                {
+                    //does stock exist for engine?
+                    var hasStock = _context.Stocks.Where(x => x.ProductId == optionPackProduct.Id).FirstOrDefault();
+
+                    //no, produce it
+                    if (hasStock == null)
+                    {
+                        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-optionpack-queue"));
+
+                        await endpoint.Send(order);
+                    }
+                    //go assemble, call assembly service
+                    else
+                    {
+                        StockDTO stock = new StockDTO
+                        {
+                            ProductId = hasStock.ProductId,
+                            WarehouseId = hasStock.WarehouseId,
+                            Quantity = hasStock.Quantity,
+                            OrderId = order.Id
+                        };
+
+                        isForAssembly.Add(stock);
+                    }
+                }
+
+                //assemble parts
+                if (isForAssembly.Count > 0)
+                {
+                    AssembleVehicle(isForAssembly);
                 }
             }
 
-            var chassisProduct = _context.Products.FirstOrDefault(x => x.Id == order.ChassisId);
-
-            if (chassisProduct != null)
-            {
-                //does stock exist for chassis?
-                var hasStock = _context.Stocks.Where(x => x.ProductId == chassisProduct.Id);
-
-                //no, produce it
-                if (!hasStock.Any())
-                {
-                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-chassis-queue"));
-
-                    await endpoint.Send(order);
-                }
-                //go assemble, call assembly service
-                else
-                {
-                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assembly-service-queue"));
-
-                    await endpoint.Send(order);
-                }
-            }
-
-            var optionPackProduct = _context.Products.FirstOrDefault(x => x.Id == order.OptionPackId);
-
-            if (optionPackProduct != null)
-            {
-                //does stock exist for engine?
-                var hasStock = _context.Stocks.Where(x => x.ProductId == optionPackProduct.Id);
-
-                //no, produce it
-                if (!hasStock.Any())
-                {
-                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-optionpack-queue"));
-
-                    await endpoint.Send(order);
-                }
-                //go assemble, call assembly service
-                else
-                {
-                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assembly-service-queue"));
-
-                    await endpoint.Send(order);
-                }
-            }
-
-            return await _context.SaveChangesAsync();
+            return true;
         }
         catch (Exception ex)
         {
@@ -122,6 +190,15 @@ public class WarehouseRepository : IWarehouseRepository
         }
     }
 
+    public async void AssembleVehicle(List<StockDTO> obj)
+    {
+        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assemble-vehicle-queue"));
+
+        for (var i = 0; i < obj.Count; i++)
+        {
+            await endpoint.Send(obj[i]);
+        }
+    }
 
     public async Task<int> CreateProduct(Product product)
     {
@@ -168,6 +245,58 @@ public class WarehouseRepository : IWarehouseRepository
             }
 
             return false;
+        }
+        catch (Exception ex)
+        {
+            //_logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
+            throw;
+        }
+    }
+
+    public async Task<int> AssembleVehicle(StockDTO stock)
+    {
+        try
+        {
+            var vehicleExists = _context.AssembledVehicleStocks.FirstOrDefault(x => x.OrderId == stock.OrderId);
+            var engineId = _context.Products.FirstOrDefault(x => x.Id == stock.ProductId && x.Type == ProductType.Engine)?.Id;
+            var chassisId = _context.Products.FirstOrDefault(x => x.Id == stock.ProductId && x.Type == ProductType.Chassis)?.Id;
+            var optionPackId = _context.Products.FirstOrDefault(x => x.Id == stock.ProductId && x.Type == ProductType.OptionPack)?.Id;
+
+            //create assemble vehicle
+            if (vehicleExists == null) {
+                AssembledVehicleStock avs = new AssembledVehicleStock
+                {
+                    EngineId = engineId,
+                    ChassisId = chassisId,
+                    OptionPackId = optionPackId,
+                    IsAvailable = true,
+                    OrderId = stock.OrderId,
+                };
+
+                _context.AssembledVehicleStocks.Add(avs);
+            }
+            //update assembled vehicle with parts
+            else
+            {
+                if (engineId != null)
+                {
+                    vehicleExists.EngineId = engineId;
+                }
+
+                if (chassisId != null)
+                {
+                    vehicleExists.ChassisId = chassisId;
+                }
+
+                if (optionPackId != null)
+                {
+                    vehicleExists.OptionPackId = optionPackId;
+                }
+
+                _context.AssembledVehicleStocks.Update(vehicleExists);
+            }
+
+            return await _context.SaveChangesAsync();
         }
         catch (Exception ex)
         {

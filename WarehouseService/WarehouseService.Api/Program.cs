@@ -1,8 +1,8 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using WarehouseService.Api;
 using WarehouseService.Api.Configurations;
+using WarehouseService.Api.Consumers;
 using WarehouseService.Infrastructure;
 using WarehouseService.Infrastructure.Repositories;
 
@@ -28,6 +28,8 @@ builder.Services.RegisterRequestHandlers();
 builder.Services.AddMassTransit(busConfig =>
 {
     busConfig.AddConsumer<OrderConsumer>();
+    busConfig.AddConsumer<StockConsumer>();
+    busConfig.AddConsumer<AssembleConsumer>();
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
@@ -40,6 +42,16 @@ builder.Services.AddMassTransit(busConfig =>
         configurator.ReceiveEndpoint("order-created-queue", c =>
         {
             c.ConfigureConsumer<OrderConsumer>(context);
+        });
+        
+        configurator.ReceiveEndpoint("update-stock-queue", c =>
+        {
+            c.ConfigureConsumer<StockConsumer>(context);
+        });
+
+        configurator.ReceiveEndpoint("assemble-vehicle-queue", c =>
+        {
+            c.ConfigureConsumer<AssembleConsumer>(context);
         });
     });
 });

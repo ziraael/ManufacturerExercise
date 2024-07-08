@@ -9,9 +9,10 @@ namespace WarehouseService.Domain.Entities
     public class AssembledVehicleStock
     {
         public Guid Id { get; set; }
-        public Guid EngineId { get; set; }
-        public Guid ChassisId { get; set; }
-        public Guid OptionPackId { get; set; }
-        public bool IsAvailable { get; set; }
+        public Guid? EngineId { get; set; }
+        public Guid? ChassisId { get; set; }
+        public Guid? OptionPackId { get; set; }
+        public Guid? OrderId { get; set; }
+        public bool IsAvailable { get; set; } = true;
     }
 }

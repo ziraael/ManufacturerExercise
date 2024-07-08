@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using OrderService.Domain.Entities;
 using WarehouseService.Api.WarehouseService.Application.Requests;
 
-namespace WarehouseService.Api
+namespace WarehouseService.Api.Consumers
 {
     public class OrderConsumer : IConsumer<Order>
     {
@@ -28,7 +28,7 @@ namespace WarehouseService.Api
             //if not, check if there are seperate components available, if not start producing
             if (!hasAssembledVehicleAvailable)
             {
-                await _mediator.Send(new UpdateStockRequest() { Order = context.Message });
+                await _mediator.Send(new CheckStockRequest() { Order = context.Message });
             }
             //ready for collection, inform order service
             else

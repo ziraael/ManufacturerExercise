@@ -23,7 +23,6 @@ namespace OrderService.Api.OrderService.Application.Handlers
             if (order)
             {
                 var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/order-created-queue"));
-                //var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-engine-queue"));
 
                 await endpoint.Send(request.Order);
             }
