@@ -7,6 +7,5 @@ public interface IWarehouseRepository
     Task<int> CreateProduct(Product product);
     Task<int> UpdateStock(Order order);
     bool CheckStock(Order order);
-    Task<Warehouse> GetWarehouse(int id);
-    Task<Warehouse> FindAsync(int id);
+    bool CheckAssembledVehicleStock(Order order);
 }

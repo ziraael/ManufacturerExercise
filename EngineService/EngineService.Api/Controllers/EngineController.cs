@@ -1,4 +1,4 @@
-﻿using EngineService.Domain.Entities;
+﻿using OrderService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EngineService.Api.Controllers

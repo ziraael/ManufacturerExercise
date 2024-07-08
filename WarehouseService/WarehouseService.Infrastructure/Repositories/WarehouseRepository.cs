@@ -54,33 +54,13 @@ public class WarehouseRepository : IWarehouseRepository
                 //no, produce it
                 if (!hasStock.Any())
                 {
-                    //Stock engineStock = new Stock
-                    //{
-                    //    ProductId = engineProduct.Id,
-                    //    WarehouseId = new Guid("dbe9af41-a908-40f5-8460-27bb1dc1d454"),
-                    //    Quantity = 1,
-                    //};
-
-                    //_context.Stocks.Add(engineStock);
-
-                    //produce it, call engine service
                     var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-engine-queue"));
 
                     await endpoint.Send(order);
                 }
-                //go assemble
+                //go assemble, call assembly service
                 else
                 {
-                    //var stockProduct = _context.Stocks.Where(x => x.ProductId == engineProduct.Id);
-
-                    //if (stockProduct != null)
-                    //{
-                    //    var currentStockQuantity = stockProduct.FirstOrDefault()?.Quantity;
-
-                    //    stockProduct.ExecuteUpdate(s => s.SetProperty(b => b.Quantity, currentStockQuantity + 1));
-                    //}
-
-                    //call assembly service
                     var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assembly-service-queue"));
 
                     await endpoint.Send(order);
@@ -94,29 +74,19 @@ public class WarehouseRepository : IWarehouseRepository
                 //does stock exist for chassis?
                 var hasStock = _context.Stocks.Where(x => x.ProductId == chassisProduct.Id);
 
-                //no, add
+                //no, produce it
                 if (!hasStock.Any())
                 {
-                    Stock chassisStock = new Stock
-                    {
-                        ProductId = chassisProduct.Id,
-                        WarehouseId = new Guid("dbe9af41-a908-40f5-8460-27bb1dc1d454"),
-                        Quantity = 1,
-                    };
+                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-chassis-queue"));
 
-                    _context.Stocks.Add(chassisStock);
+                    await endpoint.Send(order);
                 }
-                //update
+                //go assemble, call assembly service
                 else
                 {
-                    var stockProduct = _context.Stocks.Where(x => x.ProductId == chassisProduct.Id);
+                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assembly-service-queue"));
 
-                    if (stockProduct != null)
-                    {
-                        var currentStockQuantity = stockProduct.FirstOrDefault()?.Quantity;
-
-                        stockProduct.ExecuteUpdate(s => s.SetProperty(b => b.Quantity, currentStockQuantity + 1));
-                    }
+                    await endpoint.Send(order);
                 }
             }
 
@@ -127,29 +97,19 @@ public class WarehouseRepository : IWarehouseRepository
                 //does stock exist for engine?
                 var hasStock = _context.Stocks.Where(x => x.ProductId == optionPackProduct.Id);
 
-                //no, add
+                //no, produce it
                 if (!hasStock.Any())
                 {
-                    Stock optionPackStock = new Stock
-                    {
-                        ProductId = optionPackProduct.Id,
-                        WarehouseId = new Guid("dbe9af41-a908-40f5-8460-27bb1dc1d454"),
-                        Quantity = 1,
-                    };
+                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-optionpack-queue"));
 
-                    _context.Stocks.Add(optionPackStock);
+                    await endpoint.Send(order);
                 }
-                //update
+                //go assemble, call assembly service
                 else
                 {
-                    var stockProduct = _context.Stocks.Where(x => x.ProductId == optionPackProduct.Id);
+                    var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assembly-service-queue"));
 
-                    if (stockProduct != null)
-                    {
-                        var currentStockQuantity = stockProduct.FirstOrDefault()?.Quantity;
-
-                        stockProduct.ExecuteUpdate(s => s.SetProperty(b => b.Quantity, currentStockQuantity + 1));
-                    }
+                    await endpoint.Send(order);
                 }
             }
 
@@ -177,7 +137,7 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create order!");
+            //_logger.LogError(ex, "An issue occured while trying to create product!");
             throw;
         }
     }
@@ -191,18 +151,28 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create order!");
+            //_logger.LogError(ex, "An issue occured while trying to create warehouse!");
             throw;
         }
     }
 
-    public Task<Warehouse> FindAsync(int id)
+    public bool CheckAssembledVehicleStock(Order order)
     {
-        throw new NotImplementedException();
-    }
+        try
+        {
+            var checkForStock = _context.AssembledVehicleStocks.FirstOrDefault(x => x.EngineId == order.EngineId && x.ChassisId == order.ChassisId && x.OptionPackId == order.OptionPackId);
 
-    public Task<Warehouse> GetWarehouse(int id)
-    {
-        throw new NotImplementedException();
+            if (checkForStock != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            //_logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
+            throw;
+        }
     }
 }

@@ -31,13 +31,13 @@ builder.Services.AddMassTransit(busConfig =>
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
-        configurator.Host(new Uri(builder.Configuration["MessageBroker:Host"]!), h =>
+        configurator.Host("localhost", "/", h =>
         {
             h.Username(builder.Configuration["MessageBroker:Username"]);
             h.Password(builder.Configuration["MessageBroker:Password"]);
         });
 
-        configurator.ReceiveEndpoint("input-queue", c =>
+        configurator.ReceiveEndpoint("order-created-queue", c =>
         {
             c.ConfigureConsumer<OrderConsumer>(context);
         });

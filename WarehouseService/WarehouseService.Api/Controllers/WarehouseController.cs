@@ -17,13 +17,6 @@ namespace WarehouseService.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost(nameof(CheckStock))]
-        public async Task<bool> CheckStock([FromBody] Order order)
-        {
-            //return await _mediator.Send(new CheckStockRequest() { Order = order });
-            return true;
-        }
-
         [HttpPost(nameof(UpdateStock))]
         public async Task<bool> UpdateStock([FromBody] Order order)
         {
@@ -62,13 +55,6 @@ namespace WarehouseService.Api.Controllers
 
             return false;
         }
-
-        //public bool IsBeforeCollection(Guid orderId)
-        //{
-        //    var res = false;
-        //    //check is before collection
-        //    return res;
-        //}
     }
 
 }

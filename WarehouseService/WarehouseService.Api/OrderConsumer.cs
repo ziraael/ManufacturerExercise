@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using MassTransit.Transports;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OrderService.Domain.Entities;
@@ -10,21 +11,32 @@ namespace WarehouseService.Api
     {
         private readonly ILogger<OrderConsumer> _logger;
         private IMediator _mediator;
-        public OrderConsumer(ILogger<OrderConsumer> logger, IMediator mediator)
+        private ISendEndpointProvider _sendEndpointProvider;
+        public OrderConsumer(ILogger<OrderConsumer> logger, IMediator mediator, ISendEndpointProvider sendEndpointProvider)
         {
             _logger = logger;
             _mediator = mediator;
+            _sendEndpointProvider = sendEndpointProvider;
         }
         public async Task Consume(ConsumeContext<Order> context)
         {
             _logger.LogInformation("Hey order created: ", context.Message);
 
-            //check if there is stock first
+            //check if there is stock first in assembled vehicles
+            var hasAssembledVehicleAvailable = await _mediator.Send(new CheckAssembledVehiclesStockRequest() { Order = context.Message });
 
-            //lets update stock
-            var res = await _mediator.Send(new UpdateStockRequest() { Order = context.Message });
+            //if not, check if there are seperate components available, if not start producing
+            if (!hasAssembledVehicleAvailable)
+            {
+                await _mediator.Send(new UpdateStockRequest() { Order = context.Message });
+            }
+            //ready for collection, inform order service
+            else
+            {
+                var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/ready-collection-queue"));
 
-            //stock updated?
+                await endpoint.Send(context.Message);
+            }
         }
     }
 }

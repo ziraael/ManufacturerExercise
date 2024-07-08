@@ -25,12 +25,19 @@ public class EngineRepository : IEngineRepository
             Engine engine = new Engine
             {
                 StartedProduction = DateTime.Now,
-                EndedProduction = DateTime.Now,
+                EndedProduction = null,
                 OrderId = order.Id,
             };
 
             _context.Engines.Add(engine);
             await _context.SaveChangesAsync();
+
+            //sleep 15sec, simulate engine producing
+            Thread.Sleep(15000);
+
+            engine.EndedProduction = DateTime.Now;
+            await _context.SaveChangesAsync();
+
             return engine;
         }
         catch (Exception ex)

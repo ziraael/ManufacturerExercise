@@ -6,13 +6,12 @@ namespace OrderService.Api.OrderService.Application.Handlers
 {
     public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, bool>
     {
-        //Inject Validators 
         private readonly IOrderRepository _orderRepository;
-        private IPublishEndpoint _publishEndpoint;
-        public CreateOrderHandler(IOrderRepository orderRepository, IPublishEndpoint publishEndpoint)
+        private ISendEndpointProvider _sendEndpointProvider;
+        public CreateOrderHandler(IOrderRepository orderRepository, ISendEndpointProvider sendEndpointProvider)
         {
             _orderRepository = orderRepository;
-            _publishEndpoint = publishEndpoint;
+            _sendEndpointProvider = sendEndpointProvider;
         }
 
         public async Task<bool> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
@@ -20,8 +19,14 @@ namespace OrderService.Api.OrderService.Application.Handlers
             // First create the order
             var order = _orderRepository.CreateOrder(request.Order);
 
-            //inform
-            await _publishEndpoint.Publish(request.Order);
+            //inform warehouse service
+            if (order)
+            {
+                var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/order-created-queue"));
+                //var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/produce-engine-queue"));
+
+                await endpoint.Send(request.Order);
+            }
             return order;
         }
     }

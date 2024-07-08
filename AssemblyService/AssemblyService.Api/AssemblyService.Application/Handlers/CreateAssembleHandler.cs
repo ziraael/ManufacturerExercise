@@ -3,9 +3,9 @@ using EngineService.Domain.Entities;
 using MassTransit;
 using MediatR;
 
-namespace EngineService.Api.EngineService.Application.Handlers
+namespace WarehouseService.Api.WarehouseService.Application.Handlers
 {
-    public class CreateAssembleHandler : IRequestHandler<CreateAssembleRequest, Engine>
+    public class CreateAssembleHandler : IRequestHandler<AssembleRequest, Engine>
     {
         //Inject Validators 
         private readonly IEngineRepository _engineRepository;
@@ -16,7 +16,7 @@ namespace EngineService.Api.EngineService.Application.Handlers
             _publishEndpoint = publishEndpoint;
         }
 
-        public async Task<Engine> Handle(CreateAssembleRequest request, CancellationToken cancellationToken)
+        public async Task<Engine> Handle(AssembleRequest request, CancellationToken cancellationToken)
         {
             var order = await _engineRepository.CreateEngine(request.Order);
             return order;

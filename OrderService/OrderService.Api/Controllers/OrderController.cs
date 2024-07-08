@@ -74,11 +74,6 @@ namespace OrderService.Api.Controllers
         [HttpPost(nameof(CreateOrder))]
         public async Task<bool> CreateOrder(Order order)
         {
-            //create the order and 
-            //var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/input-queue"));
-
-            //await endpoint.Send(order);
-
             return await _mediator.Send(new CreateOrderRequest() { Order = order });
         }
 

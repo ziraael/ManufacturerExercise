@@ -1,10 +1,11 @@
 ﻿using EngineService.Domain.Entities;
 using MediatR;
+using OrderService.Domain.Entities;
 
 namespace EngineService.Api.EngineService.Application.Requests
 {
-    public class CreateAssembleRequest : IRequest<Engine>
+    public class AssembleRequest : IRequest<Engine>
     {
-        public Engine Engine { get; set; }
+        public Order Order { get; set; }
     }
 }

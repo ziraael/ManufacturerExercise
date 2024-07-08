@@ -5,21 +5,21 @@ using WarehouseService.Api.WarehouseService.Application.Requests;
 
 namespace WarehouseService.Api.WarehouseService.Application.Handlers
 {
-    public class CheckStockHandler : IRequestHandler<CheckStockRequest, bool>
+    public class CheckAssembledVehiclesStockHandler : IRequestHandler<CheckAssembledVehiclesStockRequest, bool>
     {
         //Inject Validators 
         private readonly IWarehouseRepository _warehouseRepository;
         private IPublishEndpoint _publishEndpoint;
-        public CheckStockHandler(IWarehouseRepository warehouseRepository, IPublishEndpoint publishEndpoint)
+        public CheckAssembledVehiclesStockHandler(IWarehouseRepository warehouseRepository, IPublishEndpoint publishEndpoint)
         {
             _warehouseRepository = warehouseRepository;
             _publishEndpoint = publishEndpoint;
         }
 
-        public async Task<bool> Handle(CheckStockRequest request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(CheckAssembledVehiclesStockRequest request, CancellationToken cancellationToken)
         {
             // First create the order
-            var hasStock = _warehouseRepository.CheckStock(request.Order);
+            var hasStock = _warehouseRepository.CheckAssembledVehicleStock(request.Order);
 
             //inform
             //await _publishEndpoint.Publish(hasStock);

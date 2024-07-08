@@ -1,23 +1,27 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER app
 WORKDIR /app
 EXPOSE 8080
 
+# Use the official .NET Core SDK image as a build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+# Copy the .csproj file and restore dependencies
 COPY ["EngineService/EngineService.Api/EngineService.Api.csproj", "EngineService/EngineService.Api/"]
-RUN dotnet restore "./EngineService/EngineService.Api/EngineService.Api.csproj"
+COPY ["EngineService/EngineService.Domain/EngineService.Domain.csproj", "EngineService/EngineService.Domain/"]
+COPY ["EngineService/EngineService.Infrastructure/EngineService.Infrastructure.csproj", "EngineService/EngineService.Infrastructure/"]
+RUN dotnet restore "EngineService/EngineService.Api/EngineService.Api.csproj"
+
+# Copy the remaining source files and build the application
 COPY . .
 WORKDIR "/src/EngineService/EngineService.Api"
-RUN dotnet build "./EngineService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "EngineService.Api.csproj" -c Release -o /app/build
 
+# Publish the application
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./EngineService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "EngineService.Api.csproj" -c Release -o /app/publish
 
+# Use the official .NET Core runtime image as a base
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

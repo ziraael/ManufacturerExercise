@@ -5,14 +5,16 @@ using OrderService.Domain.Entities;
 
 namespace EngineService.Api
 {
-    public class OrderConsumer : IConsumer<Order>
+    public class OrderToEngineConsumer : IConsumer<Order>
     {
-        private readonly ILogger<OrderConsumer> _logger;
+        private readonly ILogger<OrderToEngineConsumer> _logger;
         private IMediator _mediator;
-        public OrderConsumer(ILogger<OrderConsumer> logger, IMediator mediator)
+        private ISendEndpointProvider _sendEndpointProvider;
+        public OrderToEngineConsumer(ILogger<OrderToEngineConsumer> logger, IMediator mediator, ISendEndpointProvider sendEndpointProvider)
         {
             _logger = logger;
             _mediator = mediator;
+            _sendEndpointProvider = sendEndpointProvider;
         }
         public async Task Consume(ConsumeContext<Order> context)
         {
@@ -22,7 +24,9 @@ namespace EngineService.Api
             var engine = await _mediator.Send(new CreateProductRequest() { Order = context.Message });
 
             //now go assemble
-            await _mediator.Send(new CreateAssembleRequest() { Engine = engine });
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assembly-service-queue"));
+
+            await endpoint.Send(engine);
         }
     }
 }
