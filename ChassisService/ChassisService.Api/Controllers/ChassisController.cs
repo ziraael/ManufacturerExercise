@@ -1,4 +1,4 @@
-﻿using ChassisService.Domain.Entities;
+﻿using OrderService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChassisService.Api.Controllers
