@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OptionPackService.Domain.Entities;
 using OrderService.Domain.Entities;
+using System.Linq;
 using System.Text.Json;
 using WarehouseService.Domain.DTOs;
 using WarehouseService.Domain.Entities;
@@ -262,48 +263,91 @@ public class WarehouseRepository : IWarehouseRepository
     {
         try
         {
-                var vehicleExists = await (_context.AssembledVehicleStocks.FirstOrDefaultAsync(x => x.OrderId == stock.OrderId));
-                var engine = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.Engine));
-                var chassis = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.Chassis));
-                var optionPack = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.OptionPack));
+            var vehicleExists = await (_context.AssembledVehicleStocks.FirstOrDefaultAsync(x => x.OrderId == stock.OrderId));
+            var engine = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.Engine));
+            var chassis = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.Chassis));
+            var optionPack = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.OptionPack));
+            AssembledVehicleStock avs = new AssembledVehicleStock();
 
-                //create assemble vehicle
-                if (vehicleExists == null)
+            //create assemble vehicle
+            if (vehicleExists == null)
+            {
+                avs = new AssembledVehicleStock
                 {
-                    AssembledVehicleStock avs = new AssembledVehicleStock
-                    {
-                        EngineId = engine?.Id,
-                        ChassisId = chassis?.Id,
-                        OptionPackId = optionPack?.Id,
-                        IsAvailable = true,
-                        OrderId = stock.OrderId,
-                    };
+                    EngineId = engine?.Id,
+                    ChassisId = chassis?.Id,
+                    OptionPackId = optionPack?.Id,
+                    IsAvailable = true,
+                    OrderId = stock.OrderId,
+                };
 
-                    _context.AssembledVehicleStocks.Add(avs);
-                }
-                //update assembled vehicle with parts
-                else
+                _context.AssembledVehicleStocks.Add(avs);
+            }
+            //update assembled vehicle with parts
+            else
+            {
+                if (engine?.Id != null)
                 {
-                    if (engine?.Id != null)
-                    {
-                        vehicleExists.EngineId = engine?.Id;
-                    }
-
-                    if (chassis?.Id != null)
-                    {
-                        vehicleExists.ChassisId = chassis?.Id;
-                    }
-
-                    if (optionPack?.Id != null)
-                    {
-                        vehicleExists.OptionPackId = optionPack?.Id;
-                    }
-
-                    _context.AssembledVehicleStocks.Update(vehicleExists);
+                    vehicleExists.EngineId = engine?.Id;
                 }
 
-                await _context.SaveChangesAsync();
-                return 1;
+                if (chassis?.Id != null)
+                {
+                    vehicleExists.ChassisId = chassis?.Id;
+                }
+
+                if (optionPack?.Id != null)
+                {
+                    vehicleExists.OptionPackId = optionPack?.Id;
+                }
+
+                _context.AssembledVehicleStocks.Update(vehicleExists);
+            }
+
+            //reduce from stock since im using it to assemble a vehicle
+            if (engine?.Id != null)
+            {
+                ReduceFromStock(avs.EngineId ?? vehicleExists?.EngineId);
+            }
+            else if (chassis?.Id != null)
+            {
+                ReduceFromStock(avs.ChassisId ?? vehicleExists?.ChassisId);
+            }
+            else if (optionPack?.Id != null)
+            {
+                ReduceFromStock(avs.OptionPackId ?? vehicleExists?.OptionPackId);
+            }
+
+            return await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            //_logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
+            throw;
+        }
+    }
+
+    private async void ReduceFromStock(Guid? id)
+    {
+        try
+        {
+            if (id != null)
+            {
+                //reduce from stock since im using it to assemble a vehicle
+                var productInStock = await (_context.Stocks.FirstOrDefaultAsync(x => x.ProductId == id));
+
+                if (productInStock != null)
+                {
+                    if (productInStock.Quantity > 1)
+                    {
+                        productInStock.Quantity -= 1;
+                    }
+                    else
+                    {
+                        _context.Stocks.Remove(productInStock);
+                    }
+                }
+            }
         }
         catch (Exception ex)
         {
