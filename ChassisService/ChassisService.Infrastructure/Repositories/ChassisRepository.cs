@@ -23,7 +23,7 @@ public class ChassisRepository : IChassisRepository
         {
             Chassis chassis = new Chassis
             {
-                ProductId = order.EngineId,
+                ProductId = order.ChassisId,
                 StartedProduction = DateTime.Now,
                 EndedProduction = null,
                 OrderId = order.Id,
@@ -32,7 +32,7 @@ public class ChassisRepository : IChassisRepository
             _context.Chasses.Add(chassis);
             await _context.SaveChangesAsync();
 
-            //sleep 15sec, simulate engine producing
+            //sleep 15sec, simulate chassis producing
             Thread.Sleep(15000);
 
             chassis.EndedProduction = DateTime.Now;

@@ -1,6 +1,9 @@
-﻿using EngineService.Domain.Entities;
+﻿using ChassisService.Domain.Entities;
+using EngineService.Domain.Entities;
 using MassTransit;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using OptionPackService.Domain.Entities;
 using OrderService.Domain.Entities;
 using System.Text.Json;
 using WarehouseService.Domain.DTOs;
@@ -22,54 +25,66 @@ public class WarehouseRepository : IWarehouseRepository
         _mediator = mediator;
     }
 
-    public async Task<int> AddEngineToStock(Engine engine)
+    public async Task<int> AddProductToStock(Engine? engine, Chassis? chassis, OptionPack? optionPack)
     {
         try
         {
-            var hasStock = _context.Stocks.Where(x => x.ProductId == engine.Id).FirstOrDefault();
-            var partForAssemble = new List<StockDTO>();
+            ProductDTO product = null;
+
+            if(engine != null)
+            {
+                product = engine;
+            }
+            else if (chassis != null)
+            {
+                product = chassis;
+            }
+            else if (optionPack != null)
+            {
+                product = optionPack;
+            }
+
+            var hasStock = _context.Stocks.Where(x => x.ProductId == product.ProductId).FirstOrDefault();
+            int savedChanges = 0;
+
+            StockDTO stockDto = new StockDTO();
 
             if (hasStock == null)
             {
                 Stock stock = new Stock
                 {
-                    ProductId = engine.ProductId,
+                    ProductId = product.ProductId,
                     WarehouseId = new Guid("dbe9af41-a908-40f5-8460-27bb1dc1d454"),
                     Quantity = 1
                 };
 
                 _context.Stocks.Add(stock);
+                savedChanges = _context.SaveChanges();
 
-                StockDTO stockDto = new StockDTO
+                stockDto = new StockDTO
                 {
                     ProductId = stock.ProductId,
                     WarehouseId = stock.WarehouseId,
                     Quantity = stock.Quantity,
-                    OrderId = engine.OrderId
+                    OrderId = product.OrderId
                 };
-
-                partForAssemble.Add(stockDto);
             }
             else
             {
                 hasStock.Quantity += 1;
                 _context.Stocks.Update(hasStock);
+                savedChanges = _context.SaveChanges();
 
-                StockDTO stockDto = new StockDTO
+                stockDto = new StockDTO
                 {
                     ProductId = hasStock.ProductId,
                     WarehouseId = hasStock.WarehouseId,
                     Quantity = hasStock.Quantity,
-                    OrderId = engine.OrderId
+                    OrderId = product.OrderId
                 };
-
-                partForAssemble.Add(stockDto);
             }
 
-            var savedChanges = await _context.SaveChangesAsync();
-
-            AssembleVehicle(partForAssemble);
-
+            await AssembleVehicle(stockDto);
             return savedChanges;
         }
         catch (Exception ex)
@@ -112,7 +127,7 @@ public class WarehouseRepository : IWarehouseRepository
                             OrderId = order.Id
                         };
 
-                        isForAssembly.Add(stock);
+                        await AssembleVehicle(stock);
                     }
                 }
 
@@ -141,7 +156,7 @@ public class WarehouseRepository : IWarehouseRepository
                             OrderId = order.Id
                         };
 
-                        isForAssembly.Add(stock);
+                        await AssembleVehicle(stock);
                     }
                 }
 
@@ -169,16 +184,16 @@ public class WarehouseRepository : IWarehouseRepository
                             Quantity = hasStock.Quantity,
                             OrderId = order.Id
                         };
-
-                        isForAssembly.Add(stock);
+                        await AssembleVehicle(stock);
+                        //isForAssembly.Add(stock);
                     }
                 }
 
                 //assemble parts
-                if (isForAssembly.Count > 0)
-                {
-                    AssembleVehicle(isForAssembly);
-                }
+                //if (isForAssembly.Count > 0)
+                //{
+                //    AssembleVehicle(isForAssembly);
+                //}
             }
 
             return true;
@@ -187,16 +202,6 @@ public class WarehouseRepository : IWarehouseRepository
         {
             //_logger.LogError(ex, "An issue occured while trying to create order!");
             throw;
-        }
-    }
-
-    public async void AssembleVehicle(List<StockDTO> obj)
-    {
-        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/assemble-vehicle-queue"));
-
-        for (var i = 0; i < obj.Count; i++)
-        {
-            await endpoint.Send(obj[i]);
         }
     }
 
@@ -257,46 +262,48 @@ public class WarehouseRepository : IWarehouseRepository
     {
         try
         {
-            var vehicleExists = _context.AssembledVehicleStocks.FirstOrDefault(x => x.OrderId == stock.OrderId);
-            var engineId = _context.Products.FirstOrDefault(x => x.Id == stock.ProductId && x.Type == ProductType.Engine)?.Id;
-            var chassisId = _context.Products.FirstOrDefault(x => x.Id == stock.ProductId && x.Type == ProductType.Chassis)?.Id;
-            var optionPackId = _context.Products.FirstOrDefault(x => x.Id == stock.ProductId && x.Type == ProductType.OptionPack)?.Id;
+                var vehicleExists = await (_context.AssembledVehicleStocks.FirstOrDefaultAsync(x => x.OrderId == stock.OrderId));
+                var engine = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.Engine));
+                var chassis = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.Chassis));
+                var optionPack = await (_context.Products.FirstOrDefaultAsync(x => x.Id == stock.ProductId && x.Type == ProductType.OptionPack));
 
-            //create assemble vehicle
-            if (vehicleExists == null) {
-                AssembledVehicleStock avs = new AssembledVehicleStock
+                //create assemble vehicle
+                if (vehicleExists == null)
                 {
-                    EngineId = engineId,
-                    ChassisId = chassisId,
-                    OptionPackId = optionPackId,
-                    IsAvailable = true,
-                    OrderId = stock.OrderId,
-                };
+                    AssembledVehicleStock avs = new AssembledVehicleStock
+                    {
+                        EngineId = engine?.Id,
+                        ChassisId = chassis?.Id,
+                        OptionPackId = optionPack?.Id,
+                        IsAvailable = true,
+                        OrderId = stock.OrderId,
+                    };
 
-                _context.AssembledVehicleStocks.Add(avs);
-            }
-            //update assembled vehicle with parts
-            else
-            {
-                if (engineId != null)
+                    _context.AssembledVehicleStocks.Add(avs);
+                }
+                //update assembled vehicle with parts
+                else
                 {
-                    vehicleExists.EngineId = engineId;
+                    if (engine?.Id != null)
+                    {
+                        vehicleExists.EngineId = engine?.Id;
+                    }
+
+                    if (chassis?.Id != null)
+                    {
+                        vehicleExists.ChassisId = chassis?.Id;
+                    }
+
+                    if (optionPack?.Id != null)
+                    {
+                        vehicleExists.OptionPackId = optionPack?.Id;
+                    }
+
+                    _context.AssembledVehicleStocks.Update(vehicleExists);
                 }
 
-                if (chassisId != null)
-                {
-                    vehicleExists.ChassisId = chassisId;
-                }
-
-                if (optionPackId != null)
-                {
-                    vehicleExists.OptionPackId = optionPackId;
-                }
-
-                _context.AssembledVehicleStocks.Update(vehicleExists);
-            }
-
-            return await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+                return 1;
         }
         catch (Exception ex)
         {

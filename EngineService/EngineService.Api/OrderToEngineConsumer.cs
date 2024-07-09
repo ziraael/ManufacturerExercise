@@ -24,7 +24,7 @@ namespace EngineService.Api
             var engine = await _mediator.Send(new CreateProductRequest() { Order = context.Message });
 
             //now go add to stock and send for assemble
-            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/update-stock-queue"));
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/update-enginestock-queue"));
 
             await endpoint.Send(engine);
         }

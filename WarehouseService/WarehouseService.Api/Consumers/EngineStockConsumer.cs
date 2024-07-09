@@ -8,12 +8,12 @@ using WarehouseService.Api.WarehouseService.Application.Requests;
 
 namespace WarehouseService.Api
 {
-    public class StockConsumer : IConsumer<Engine>
+    public class EngineStockConsumer : IConsumer<Engine>
     {
-        private readonly ILogger<StockConsumer> _logger;
+        private readonly ILogger<EngineStockConsumer> _logger;
         private IMediator _mediator;
         private ISendEndpointProvider _sendEndpointProvider;
-        public StockConsumer(ILogger<StockConsumer> logger, IMediator mediator, ISendEndpointProvider sendEndpointProvider)
+        public EngineStockConsumer(ILogger<EngineStockConsumer> logger, IMediator mediator, ISendEndpointProvider sendEndpointProvider)
         {
             _logger = logger;
             _mediator = mediator;
@@ -23,7 +23,7 @@ namespace WarehouseService.Api
         {
             _logger.LogInformation("Hey i produced engine, add it to stock: ", context.Message);
 
-             await _mediator.Send(new AddEngineToStockRequest() { Engine = context.Message });
+             await _mediator.Send(new AddToStockRequest() { Engine = context.Message });
         }
     }
 }

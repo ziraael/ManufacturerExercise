@@ -24,7 +24,7 @@ namespace ChassisService.Api
             var chassis = await _mediator.Send(new CreateProductRequest() { Order = context.Message });
 
             //now go add to stock and send for assemble
-            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/update-stock-queue"));
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/update-chassisstock-queue"));
 
             await endpoint.Send(chassis);
         }

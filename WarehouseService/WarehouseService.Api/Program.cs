@@ -28,7 +28,8 @@ builder.Services.RegisterRequestHandlers();
 builder.Services.AddMassTransit(busConfig =>
 {
     busConfig.AddConsumer<OrderConsumer>();
-    busConfig.AddConsumer<StockConsumer>();
+    busConfig.AddConsumer<EngineStockConsumer>();
+    busConfig.AddConsumer<ChassisStockConsumer>();
     busConfig.AddConsumer<AssembleConsumer>();
 
     busConfig.UsingRabbitMq((context, configurator) =>
@@ -44,10 +45,20 @@ builder.Services.AddMassTransit(busConfig =>
             c.ConfigureConsumer<OrderConsumer>(context);
         });
         
-        configurator.ReceiveEndpoint("update-stock-queue", c =>
+        configurator.ReceiveEndpoint("update-enginestock-queue", c =>
         {
-            c.ConfigureConsumer<StockConsumer>(context);
+            c.ConfigureConsumer<EngineStockConsumer>(context);
         });
+
+        configurator.ReceiveEndpoint("update-chassisstock-queue", c =>
+        {
+            c.ConfigureConsumer<ChassisStockConsumer>(context);
+        });
+
+        //configurator.ReceiveEndpoint("update-optionstock-queue", c =>
+        //{
+        //    c.ConfigureConsumer<EngineStockConsumer>(context);
+        //});
 
         configurator.ReceiveEndpoint("assemble-vehicle-queue", c =>
         {

@@ -29,6 +29,16 @@ services:
     depends_on:
       - rabbitmq
 
+  # chassis-service:
+  #   image: chassis-service:latest
+  #   build:
+  #     context: .
+  #     dockerfile: ChassisService/ChassisService.Api/Dockerfile
+  #   ports:
+  #     - "5004:8080"
+  #   depends_on:
+  #     - rabbitmq
+
   rabbitmq:
     image: rabbitmq:3-management
     environment:

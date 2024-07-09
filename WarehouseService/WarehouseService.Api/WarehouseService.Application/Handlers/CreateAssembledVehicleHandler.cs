@@ -17,8 +17,8 @@ namespace WarehouseService.Api.WarehouseService.Application.Handlers
 
         public async Task<int> Handle(CreateAssembledVehicleRequest request, CancellationToken cancellationToken)
         {
-            var order = await _warehouseRepository.AssembleVehicle(request.Stock);
-            return order;
+            //var order = await _warehouseRepository.AssembleVehicle(request.Stock);
+            return 0;
         }
     }
 }

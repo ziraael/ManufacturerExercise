@@ -4,21 +4,20 @@ using WarehouseService.Api.WarehouseService.Application.Requests;
 
 namespace WarehouseService.Api.WarehouseService.Application.Handlers
 {
-    public class AddEngineToStockHandler : IRequestHandler<AddEngineToStockRequest, int>
+    public class AddToStockHandler : IRequestHandler<AddToStockRequest, int>
     {
         //Inject Validators 
         private readonly IWarehouseRepository _warehouseRepository;
         private IPublishEndpoint _publishEndpoint;
-        public AddEngineToStockHandler(IWarehouseRepository warehouseRepository, IPublishEndpoint publishEndpoint)
+        public AddToStockHandler(IWarehouseRepository warehouseRepository, IPublishEndpoint publishEndpoint)
         {
             _warehouseRepository = warehouseRepository;
             _publishEndpoint = publishEndpoint;
         }
 
-        public async Task<int> Handle(AddEngineToStockRequest request, CancellationToken cancellationToken)
+        public async Task<int> Handle(AddToStockRequest request, CancellationToken cancellationToken)
         {
-            var order = await _warehouseRepository.AddEngineToStock(request.Engine);
-            return order;
+            return await _warehouseRepository.AddProductToStock(request.Engine, request.Chassis, request.OptionPack);
         }
     }
 }
