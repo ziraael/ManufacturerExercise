@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WarehouseService.Api;
 using WarehouseService.Api.Configurations;
 using WarehouseService.Api.Consumers;
+using WarehouseService.Domain;
 using WarehouseService.Infrastructure;
 using WarehouseService.Infrastructure.Repositories;
 
@@ -18,10 +19,14 @@ builder.Services.AddSwaggerGen(c =>
     c.UseInlineDefinitionsForEnums();
 });
 
+var serviceProvider = builder.Services.BuildServiceProvider();
+var logger = serviceProvider.GetService<ILogger<ApplicationLogger>>();
+builder.Services.AddSingleton(typeof(ILogger), logger);
+
 // Register ApplicationDbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                     ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))));
+                     ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))),ServiceLifetime.Transient);
 
 builder.Services.AddScoped<IWarehouseRepository, WarehouseRepository>();
 builder.Services.RegisterRequestHandlers();
@@ -73,9 +78,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthorization();
 

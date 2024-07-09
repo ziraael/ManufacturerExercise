@@ -1,5 +1,6 @@
 using EngineService.Api;
 using EngineService.Api.Configurations;
+using EngineService.Domain;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using WarehouseService.Infrastructure;
@@ -16,6 +17,10 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.UseInlineDefinitionsForEnums();
 });
+
+var serviceProvider = builder.Services.BuildServiceProvider();
+var logger = serviceProvider.GetService<ILogger<ApplicationLogger>>();
+builder.Services.AddSingleton(typeof(ILogger), logger);
 
 // Register ApplicationDbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -49,9 +54,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthorization();
 

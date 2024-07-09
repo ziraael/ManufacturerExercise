@@ -9,7 +9,7 @@ public interface IWarehouseRepository
 {
     Task<int> CreateWarehouse(Warehouse warehouse);
     Task<int> CreateProduct(Product product);
-    Task<int> AssembleVehicle(StockDTO stock);
+    int AssembleVehicle(StockDTO stock);
     Task<bool> CheckStock(Order order);
     Task<int> AddProductToStock(Engine? engine, Chassis? chassis, OptionPack? optionPack);
     bool CheckAssembledVehicleStock(Order order);
