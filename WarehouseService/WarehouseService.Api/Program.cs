@@ -39,6 +39,9 @@ builder.Services.AddMassTransit(busConfig =>
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
+        //bool IsRunningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inDocker) && inDocker;
+        //var host = IsRunningInContainer ? "rabbitmq" : "localhost";
+
         configurator.Host("localhost", "/", h =>
         {
             h.Username(builder.Configuration["MessageBroker:Username"]);
@@ -60,10 +63,10 @@ builder.Services.AddMassTransit(busConfig =>
             c.ConfigureConsumer<ChassisStockConsumer>(context);
         });
 
-        //configurator.ReceiveEndpoint("update-optionstock-queue", c =>
-        //{
-        //    c.ConfigureConsumer<EngineStockConsumer>(context);
-        //});
+        configurator.ReceiveEndpoint("update-optionstock-queue", c =>
+        {
+            c.ConfigureConsumer<EngineStockConsumer>(context);
+        });
 
         configurator.ReceiveEndpoint("assemble-vehicle-queue", c =>
         {

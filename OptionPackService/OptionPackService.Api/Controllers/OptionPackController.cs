@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OptionPackService.Domain.Entities;
+using OrderService.Domain.Entities;
 
 namespace OptionPackService.Api.Controllers
 {

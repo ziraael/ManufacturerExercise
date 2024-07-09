@@ -3,8 +3,8 @@ using EngineService.Api.Configurations;
 using EngineService.Domain;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using WarehouseService.Infrastructure;
-using WarehouseService.Infrastructure.Repositories;
+using EngineService.Infrastructure;
+using EngineService.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 

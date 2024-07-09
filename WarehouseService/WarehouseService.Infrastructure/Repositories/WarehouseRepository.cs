@@ -94,7 +94,7 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create product!");
+            _logger.LogError(ex, "An issue occured while trying to create product!");
             throw;
         }
     }
@@ -205,7 +205,7 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create order!");
+            _logger.LogError(ex, "An issue occured while trying to create order!");
             throw;
         }
     }
@@ -224,7 +224,7 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create product!");
+            _logger.LogError(ex, "An issue occured while trying to create product!");
             throw;
         }
     }
@@ -238,7 +238,7 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create warehouse!");
+            _logger.LogError(ex, "An issue occured while trying to create warehouse!");
             throw;
         }
     }
@@ -258,7 +258,7 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
+            _logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
             throw;
         }
     }
@@ -361,7 +361,7 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
+            _logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
             throw;
         }
     }

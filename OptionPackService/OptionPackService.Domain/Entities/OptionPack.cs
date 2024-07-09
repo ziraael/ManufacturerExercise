@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EngineService.Domain.Entities
+namespace OptionPackService.Domain.Entities
 {
-    public class Engine
+    public class OptionPack
     {
         public Guid Id { get; set; }
         public Guid OrderId { get; set; }

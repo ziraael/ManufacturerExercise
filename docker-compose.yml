@@ -39,6 +39,16 @@ services:
   #   depends_on:
   #     - rabbitmq
 
+  # optionpack-service:
+  #   image: optionpack-service:latest
+  #   build:
+  #     context: .
+  #     dockerfile: OptionPackService/OptionPackService.Api/Dockerfile
+  #   ports:
+  #     - "5005:8080"
+  #   depends_on:
+  #     - rabbitmq
+
   rabbitmq:
     image: rabbitmq:3-management
     environment:
