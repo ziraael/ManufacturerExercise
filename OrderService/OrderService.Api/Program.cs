@@ -31,7 +31,7 @@ builder.Services.AddMassTransit(busConfig =>
     //busConfig.SetKebabCaseEndpointNameFormatter();
     busConfig.UsingRabbitMq((context, configurator) =>
     {
-        configurator.Host("localhost", "/", y =>
+        configurator.Host("host.docker.internal", "/", y =>
         {
             y.Username(builder.Configuration["MessageBroker:Username"]!);
             y.Username(builder.Configuration["MessageBroker:Password"]!);
@@ -55,6 +55,10 @@ if (app.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseCors(builder => builder
+     .AllowAnyOrigin()
+     .AllowAnyMethod()
+     .AllowAnyHeader());
 app.UseAuthorization();
 
 app.MapControllers();

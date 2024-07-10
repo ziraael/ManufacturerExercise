@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
@@ -21,8 +21,14 @@ RUN dotnet build "WarehouseService.Api.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "WarehouseService.Api.csproj" -c Release -o /app/publish
 
+#ENV ConnectionString="Server=localhost;Port=3303;Database=warehouseservicedb;User Id=root;Password=root;"
+
 # Use the official .NET Core runtime image as a base
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+# Run migrations
+#ENV PATH $PATH:/root/.dotnet/tools
+#RUN dotnet tool install -g dotnet-ef
+#RUN dotnet ef database update --project build/WarehouseService.Api.csproj
 ENTRYPOINT ["dotnet", "WarehouseService.Api.dll"]

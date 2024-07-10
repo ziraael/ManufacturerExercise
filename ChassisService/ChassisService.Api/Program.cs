@@ -31,7 +31,7 @@ builder.Services.AddMassTransit(busConfig =>
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
-        configurator.Host("localhost", "/", h =>
+        configurator.Host("host.docker.internal", "/", h =>
         {
             h.Username(builder.Configuration["MessageBroker:Username"]);
             h.Password(builder.Configuration["MessageBroker:Password"]);

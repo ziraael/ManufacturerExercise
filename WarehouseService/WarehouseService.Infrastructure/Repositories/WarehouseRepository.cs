@@ -301,20 +301,20 @@ public class WarehouseRepository : IWarehouseRepository
                     if (engine?.Id != null)
                     {
                         vehicleExists.EngineId = engine?.Id;
-                        _context.AssembledVehicleStocks.ExecuteUpdate(s => s.SetProperty(u => u.EngineId, vehicleExists.EngineId));
                     }
 
                     if (chassis?.Id != null)
                     {
                         vehicleExists.ChassisId = chassis?.Id;
-                        _context.AssembledVehicleStocks.ExecuteUpdate(s => s.SetProperty(u => u.ChassisId, vehicleExists.ChassisId));
                     }
 
                     if (optionPack?.Id != null)
                     {
                         vehicleExists.OptionPackId = optionPack?.Id;
-                        _context.AssembledVehicleStocks.ExecuteUpdate(s => s.SetProperty(u => u.OptionPackId, vehicleExists.OptionPackId));
                     }
+
+                    _context.AssembledVehicleStocks.Update(vehicleExists);
+                    _context.SaveChanges();
 
                     //make it ready for collection, inform order service
                     if (vehicleExists.EngineId != null && vehicleExists.ChassisId != null && vehicleExists.OptionPackId != null)

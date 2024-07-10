@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderService.Domain.Entities;
 using System.Reflection;
@@ -14,6 +15,31 @@ public class OrderRepository: IOrderRepository
         _logger = logger;
     }
 
+    public async Task<Order?> GetOrderById(Guid orderId)
+    {
+        try
+        {
+            return await (_context.Orders.FirstOrDefaultAsync(x => x.Id == orderId));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An issue occured while trying to get order!");
+            throw;
+        }
+    }
+
+    public async Task<List<Order>> GetAllOrders()
+    {
+        try
+        {
+            return await _context.Orders.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An issue occured while trying to get orders!");
+            throw;
+        }
+    }
     public bool ChangeOrderStatus(Guid orderId, string type, bool statusValue)
     {
         try

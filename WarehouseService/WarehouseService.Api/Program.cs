@@ -43,7 +43,7 @@ builder.Services.AddMassTransit(busConfig =>
         //bool IsRunningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inDocker) && inDocker;
         //var host = IsRunningInContainer ? "rabbitmq" : "localhost";
 
-        configurator.Host("localhost", "/", h =>
+        configurator.Host("host.docker.internal", "/", h =>
         {
             h.Username(builder.Configuration["MessageBroker:Username"]);
             h.Password(builder.Configuration["MessageBroker:Password"]);

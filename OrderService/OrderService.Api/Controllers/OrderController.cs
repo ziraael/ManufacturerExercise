@@ -22,18 +22,15 @@ namespace OrderService.Api.Controllers
             _publishEndpoint = publishEndpoint;
             _sendEndpointProvider = sendEndpointProvider;
         }
-
-        [HttpGet(nameof(GetOrder))]
-        public async Task<Order?> GetOrder(int orderId)
+        [HttpGet(nameof(GetOrders))]
+        public async Task<List<Order>> GetOrders()
         {
-            await _publishEndpoint.Publish(new OrderCreatedEvent
-            {
-                Id = new Guid(),
-                CreatedAt = new DateTime()
-            });
-            var orderDetails = await _mediator.Send(new GetOrderRequest() { OrderId = orderId });
-            
-            return orderDetails;
+            return await _mediator.Send(new GetAllOrdersRequest() { });
+        }
+        [HttpGet(nameof(GetOrderById))]
+        public async Task<Order?> GetOrderById(Guid orderId)
+        {
+            return await _mediator.Send(new GetOrderRequest() { OrderId = orderId });
         }
 
         [HttpPost(nameof(CreateOrder))]

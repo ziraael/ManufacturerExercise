@@ -8,16 +8,43 @@ services:
       - "5001:8080"
     depends_on:
       - rabbitmq
+
+  orderservice-db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'orderservicedb'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3305:3306'
   
-  # engine-service:
-  #   image: engine-service:latest
+  engine-service:
+    image: engine-service:latest
+    build:
+      context: .
+      dockerfile: EngineService/EngineService.Api/Dockerfile
+    ports:
+      - "5002:8080"
+    depends_on:
+      - rabbitmq
+
+  engineservice-db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'engineservicedb'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3304:3306'
+
+  # migration-service:
   #   build:
-  #     context: .
-  #     dockerfile: EngineService/EngineService.Api/Dockerfile
-  #   ports:
-  #     - "5002:8080"
+  #       context: .
+  #       dockerfile: WarehouseService/WarehouseService.Api/Dockerfile.migrations
   #   depends_on:
-  #     - rabbitmq
+  #   - warehouseservice-db
 
   warehouse-service:
     image: warehouse-service:latest
@@ -28,29 +55,61 @@ services:
       - "5003:8080"
     depends_on:
       - rabbitmq
+      # - migration-service
+ 
+  warehouseservice-db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'warehouseservicedb'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3303:3306'
 
-  # chassis-service:
-  #   image: chassis-service:latest
-  #   build:
-  #     context: .
-  #     dockerfile: ChassisService/ChassisService.Api/Dockerfile
-  #   ports:
-  #     - "5004:8080"
-  #   depends_on:
-  #     - rabbitmq
+  chassis-service:
+    image: chassis-service:latest
+    build:
+      context: .
+      dockerfile: ChassisService/ChassisService.Api/Dockerfile
+    ports:
+      - "5004:8080"
+    depends_on:
+      - rabbitmq
+ 
+  chassisservice-db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'chassisservicedb'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3302:3306'
 
-  # optionpack-service:
-  #   image: optionpack-service:latest
-  #   build:
-  #     context: .
-  #     dockerfile: OptionPackService/OptionPackService.Api/Dockerfile
-  #   ports:
-  #     - "5005:8080"
-  #   depends_on:
-  #     - rabbitmq
-
+  optionpack-service:
+    image: optionpack-service:latest
+    build:
+      context: .
+      dockerfile: OptionPackService/OptionPackService.Api/Dockerfile
+    ports:
+      - "5005:8080"
+    depends_on:
+      - rabbitmq
+ 
+  optionpackservice-db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'optionpackservicedb'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3301:3306'
+ 
   rabbitmq:
     image: rabbitmq:3-management
+    container_name: rabbitmq1
     environment:
         - RABBITMQ_DEFAULT_USER=guest
         - RABBITMQ_DEFAULT_PASS=guest

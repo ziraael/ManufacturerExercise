@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using OrderService.Domain.Entities;
 using WarehouseService.Api.WarehouseService.Application.Requests;
+using WarehouseService.Domain.Entities;
 
 namespace WarehouseService.Api.Consumers
 {
@@ -34,8 +35,14 @@ namespace WarehouseService.Api.Consumers
             else
             {
                 var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/ready-collection-queue"));
-
-                await endpoint.Send(context.Message);
+                AssembledVehicleStock avs = new AssembledVehicleStock
+                {
+                    ChassisId = context.Message.ChassisId,
+                    EngineId = context.Message.EngineId,
+                    OptionPackId = context.Message.OptionPackId,
+                    OrderId = context.Message.Id
+                };
+                await endpoint.Send(avs);
             }
         }
     }

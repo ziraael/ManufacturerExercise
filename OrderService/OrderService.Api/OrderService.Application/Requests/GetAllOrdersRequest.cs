@@ -1,10 +1,9 @@
-using MediatR;
+﻿using MediatR;
 using OrderService.Domain.Entities;
 
 namespace OrderService.Api.OrderService.Application.Requests
 {
-    public class GetOrderRequest : IRequest<Order?>
+    public class GetAllOrdersRequest : IRequest<List<Order>>
     {
-        public Guid OrderId { get; set; }
     }
 }
