@@ -4,7 +4,7 @@ using OptionPackService.Domain;
 using OptionPackService.Infrastructure;
 using OptionPackService.Infrastructure.Repositories;
 using OptionPackService.Api.Configurations;
-using WarehouseService.Api;
+using OptionPackService.Api.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 

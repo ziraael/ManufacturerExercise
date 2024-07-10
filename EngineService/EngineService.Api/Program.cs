@@ -1,10 +1,10 @@
-using EngineService.Api;
 using EngineService.Api.Configurations;
 using EngineService.Domain;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using EngineService.Infrastructure;
 using EngineService.Infrastructure.Repositories;
+using EngineService.Api.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 

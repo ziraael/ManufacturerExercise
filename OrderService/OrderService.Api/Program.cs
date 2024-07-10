@@ -1,6 +1,7 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Api.Configurations;
+using OrderService.Api.Consumers;
 using OrderService.Domain;
 using OrderService.Infrastructure;
 using OrderService.Infrastructure.Repositories;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.RegisterRequestHandlers();
 builder.Services.AddMassTransit(busConfig =>
 {
+    busConfig.AddConsumer<OrderConsumer>();
     //busConfig.SetKebabCaseEndpointNameFormatter();
     busConfig.UsingRabbitMq((context, configurator) =>
     {
@@ -33,6 +35,11 @@ builder.Services.AddMassTransit(busConfig =>
         {
             y.Username(builder.Configuration["MessageBroker:Username"]!);
             y.Username(builder.Configuration["MessageBroker:Password"]!);
+        });
+
+        configurator.ReceiveEndpoint("ready-collection-queue", c =>
+        {
+            c.ConfigureConsumer<OrderConsumer>(context);
         });
     });
 });

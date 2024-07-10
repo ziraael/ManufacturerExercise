@@ -7,36 +7,11 @@ namespace OrderService.Infrastructure.Repositories;
 public class OrderRepository: IOrderRepository
 {
     private readonly ApplicationDbContext _context;
-    //private ILogger _logger;
-    public OrderRepository(ApplicationDbContext context/*, ILogger logger*/)
+    private ILogger _logger;
+    public OrderRepository(ApplicationDbContext context, ILogger logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        //_logger = logger;
-    }
-
-    public bool CancelOrder(Guid orderId)
-    {
-        try
-        {
-            var order = _context.Orders.SingleOrDefault(x => x.Id == orderId);
-
-            if (order != null && order.IsReadyForCollection == false)
-            {
-                order.IsCanceled = true;
-                _context.Orders.Update(order);
-                _context.SaveChanges();
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        catch (Exception ex)
-        {
-            //_logger.LogError(ex, "An issue occurred while trying to cancel your order!");
-            throw;
-        }
+        _logger = logger;
     }
 
     public bool ChangeOrderStatus(Guid orderId, string type, bool statusValue)
@@ -47,28 +22,38 @@ public class OrderRepository: IOrderRepository
 
             if (order != null)
             {
-                PropertyInfo propertyInfo = typeof(Order).GetProperty(type, BindingFlags.Public | BindingFlags.Instance);
-
-                // Check if the property exists and is of type bool
-                if (propertyInfo != null && propertyInfo.PropertyType == typeof(bool))
+                if (order.IsCanceled == false)
                 {
-                    // Update the property value
-                    propertyInfo.SetValue(order, statusValue);
+                    PropertyInfo propertyInfo = typeof(Order).GetProperty(type, BindingFlags.Public | BindingFlags.Instance);
 
-                    // Save the changes using Entity Framework
-                    _context.SaveChanges();
-                    return true;
+                    if (propertyInfo != null && propertyInfo.PropertyType == typeof(bool))
+                    {
+                        if (type == "IsCanceled")
+                        {
+                            if (!order.IsReadyForCollection == false)
+                            {
+                                return false;
+                            }
+                        }
+
+                        propertyInfo.SetValue(order, statusValue);
+
+                        _context.SaveChanges();
+                        return true;
+                    }
                 }
+                _logger.LogError("Couldn't make order ready for collection since it was canceled!");
                 return false;
             }
             else
             {
+                _logger.LogError("Order not found!");
                 return false;
             }
         }
         catch (Exception ex)
         {
-           // _logger.LogError(ex, "An issue occured while trying to change order status!");
+            _logger.LogError(ex, "An issue occured while trying to change order status!");
             throw;
         }
     }
@@ -87,18 +72,8 @@ public class OrderRepository: IOrderRepository
         }
         catch(Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create order!");
+            _logger.LogError(ex, "An issue occured while trying to create order!");
             throw;
         }
-    }
-
-    public Task<Order> FindAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Order> GetOrder(int id)
-    {
-        throw new NotImplementedException();
     }
 }

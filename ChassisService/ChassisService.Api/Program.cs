@@ -1,10 +1,10 @@
-using ChassisService.Api;
 using ChassisService.Api.Configurations;
 using ChassisService.Infrastructure;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using WarehouseService.Infrastructure.Repositories;
 using ChassisService.Domain;
+using ChassisService.Api.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 

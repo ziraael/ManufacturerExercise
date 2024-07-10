@@ -3,7 +3,7 @@ using MassTransit;
 using MediatR;
 using OrderService.Domain.Entities;
 
-namespace ChassisService.Api
+namespace ChassisService.Api.Consumers
 {
     public class OrderToChassisConsumer : IConsumer<Order>
     {

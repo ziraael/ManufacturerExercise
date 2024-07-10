@@ -36,6 +36,7 @@ builder.Services.AddMassTransit(busConfig =>
     busConfig.AddConsumer<EngineStockConsumer>();
     busConfig.AddConsumer<ChassisStockConsumer>();
     busConfig.AddConsumer<AssembleConsumer>();
+    busConfig.AddConsumer<OptionStockConsumer>();
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
@@ -65,7 +66,7 @@ builder.Services.AddMassTransit(busConfig =>
 
         configurator.ReceiveEndpoint("update-optionstock-queue", c =>
         {
-            c.ConfigureConsumer<EngineStockConsumer>(context);
+            c.ConfigureConsumer<OptionStockConsumer>(context);
         });
 
         configurator.ReceiveEndpoint("assemble-vehicle-queue", c =>

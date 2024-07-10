@@ -3,7 +3,7 @@ using MassTransit;
 using MediatR;
 using OrderService.Domain.Entities;
 
-namespace WarehouseService.Api
+namespace OptionPackService.Api.Consumers
 {
     public class OrderToOptionPackConsumer : IConsumer<Order>
     {

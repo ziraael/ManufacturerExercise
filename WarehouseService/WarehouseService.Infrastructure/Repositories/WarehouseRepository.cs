@@ -20,14 +20,12 @@ public class WarehouseRepository : IWarehouseRepository
     private readonly ApplicationDbContext _context;
     private ILogger _logger;
     private readonly ISendEndpointProvider _sendEndpointProvider;
-    private IMediator _mediator;
     static object _lock = new Object();
     public WarehouseRepository(ApplicationDbContext context, ILogger logger, ISendEndpointProvider sendEndpointProvider, IMediator mediator)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger;
         _sendEndpointProvider = sendEndpointProvider ?? throw new ArgumentNullException();
-        _mediator = mediator;
     }
 
     public async Task<int> AddProductToStock(Engine? engine, Chassis? chassis, OptionPack? optionPack)
@@ -89,12 +87,12 @@ public class WarehouseRepository : IWarehouseRepository
                 };
             }
 
-             AssembleVehicle(stockDto);
+            AssembleVehicle(stockDto);
             return savedChanges;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An issue occured while trying to create product!");
+            _logger.LogError(ex, "An issue occured while trying to add product to stock!");
             throw;
         }
     }
@@ -190,22 +188,15 @@ public class WarehouseRepository : IWarehouseRepository
                             OrderId = order.Id
                         };
                          AssembleVehicle(stock);
-                        //isForAssembly.Add(stock);
                     }
                 }
-
-                //assemble parts
-                //if (isForAssembly.Count > 0)
-                //{
-                //    AssembleVehicle(isForAssembly);
-                //}
             }
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An issue occured while trying to create order!");
+            _logger.LogError(ex, "An issue occured while trying to check for stock!");
             throw;
         }
     }
@@ -324,14 +315,32 @@ public class WarehouseRepository : IWarehouseRepository
                         vehicleExists.OptionPackId = optionPack?.Id;
                         _context.AssembledVehicleStocks.ExecuteUpdate(s => s.SetProperty(u => u.OptionPackId, vehicleExists.OptionPackId));
                     }
+
+                    //make it ready for collection, inform order service
+                    if (vehicleExists.EngineId != null && vehicleExists.ChassisId != null && vehicleExists.OptionPackId != null)
+                    {
+                        MakeReadyForCollection(vehicleExists);
+                    }
                 }
             }
             return 1;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
+            _logger.LogError(ex, "An issue occured while trying to assemble vehicle!");
             throw;
+        }
+    }
+
+    private async Task MakeReadyForCollection(AssembledVehicleStock vehicle)
+    {
+        try
+        {
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/ready-collection-queue"));
+
+            await endpoint.Send(vehicle);
+        }
+        catch(Exception ex) { 
         }
     }
 
@@ -361,7 +370,7 @@ public class WarehouseRepository : IWarehouseRepository
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An issue occured while trying to check for assembled vehicle!");
+            _logger.LogError(ex, "An issue occured while trying to reduce stock!");
             throw;
         }
     }

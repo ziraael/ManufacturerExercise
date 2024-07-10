@@ -3,7 +3,7 @@ using MassTransit;
 using MediatR;
 using OrderService.Domain.Entities;
 
-namespace EngineService.Api
+namespace EngineService.Api.Consumers
 {
     public class OrderToEngineConsumer : IConsumer<Order>
     {
