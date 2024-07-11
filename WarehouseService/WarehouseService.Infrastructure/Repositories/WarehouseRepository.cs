@@ -54,10 +54,11 @@ public class WarehouseRepository : IWarehouseRepository
 
             if (hasStock == null)
             {
+                //take the first warehouse...
                 Stock stock = new Stock
                 {
                     ProductId = product.ProductId,
-                    WarehouseId = new Guid("dbe9af41-a908-40f5-8460-27bb1dc1d454"),
+                    WarehouseId = _context.Warehouses.FirstOrDefault().Id,
                     Quantity = 1
                 };
 
