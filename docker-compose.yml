@@ -1,6 +1,10 @@
+networks:
+  manufacturerexercise-network:
+
 services:
   order-service:
     image: order-service:latest
+    container_name: order-service
     build:
       context: .
       dockerfile: OrderService/OrderService.Api/Dockerfile
@@ -8,19 +12,29 @@ services:
       - "5001:8080"
     depends_on:
       - rabbitmq
+      - orderservice-db 
+    networks:
+      - manufacturerexercise-network
+    environment:
+      - DB_HOST=orderservice-db
+      - DB_NAME=orderservicedb
+      - DB_ROOT_PASSWORD=root
 
   orderservice-db:
-    image: mysql:5.7
-    restart: always
+    image: mysql:8.0-oracle
+    # restart: always
+    container_name: orderservice-db
     environment:
-      MYSQL_DATABASE: 'orderservicedb'
-      MYSQL_PASSWORD: 'root'
-      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: orderservicedb
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - '3305:3306'
+      - '8005:3306'
+    networks:
+      - manufacturerexercise-network
   
   engine-service:
     image: engine-service:latest
+    container_name: engine-service
     build:
       context: .
       dockerfile: EngineService/EngineService.Api/Dockerfile
@@ -28,26 +42,29 @@ services:
       - "5002:8080"
     depends_on:
       - rabbitmq
+      - engineservice-db 
+    networks:
+      - manufacturerexercise-network
+    environment:
+      - DB_HOST=engineservice-db
+      - DB_NAME=engineservicedb
+      - DB_ROOT_PASSWORD=root
 
   engineservice-db:
-    image: mysql:5.7
-    restart: always
+    image: mysql:8.0-oracle
+    # restart: always
+    container_name: engineservice-db
     environment:
-      MYSQL_DATABASE: 'engineservicedb'
-      MYSQL_PASSWORD: 'root'
-      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: engineservicedb
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - '3304:3306'
-
-  # migration-service:
-  #   build:
-  #       context: .
-  #       dockerfile: WarehouseService/WarehouseService.Api/Dockerfile.migrations
-  #   depends_on:
-  #   - warehouseservice-db
+      - '8004:3306'
+    networks:
+      - manufacturerexercise-network
 
   warehouse-service:
     image: warehouse-service:latest
+    container_name: warehouse-service
     build:
       context: .
       dockerfile: WarehouseService/WarehouseService.Api/Dockerfile
@@ -55,20 +72,29 @@ services:
       - "5003:8080"
     depends_on:
       - rabbitmq
-      # - migration-service
- 
-  warehouseservice-db:
-    image: mysql:5.7
-    restart: always
+      - warehouseservice-db 
+    networks:
+      - manufacturerexercise-network
     environment:
-      MYSQL_DATABASE: 'warehouseservicedb'
-      MYSQL_PASSWORD: 'root'
-      MYSQL_ROOT_PASSWORD: 'root'
+      - DB_HOST=warehouseservice-db
+      - DB_NAME=warehouseservicedb
+      - DB_ROOT_PASSWORD=root
+       
+  warehouseservice-db:
+    image: mysql:8.0-oracle
+    # restart: always
+    container_name: warehouseservice-db
+    environment:
+      MYSQL_DATABASE: warehouseservicedb
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - '3303:3306'
+      - '8003:3306'
+    networks:
+      - manufacturerexercise-network
 
   chassis-service:
     image: chassis-service:latest
+    container_name: chassis-service
     build:
       context: .
       dockerfile: ChassisService/ChassisService.Api/Dockerfile
@@ -76,19 +102,29 @@ services:
       - "5004:8080"
     depends_on:
       - rabbitmq
+      - chassisservice-db 
+    networks:
+      - manufacturerexercise-network
+    environment:
+      - DB_HOST=chassisservice-db
+      - DB_NAME=chassisservicedb
+      - DB_ROOT_PASSWORD=root
  
   chassisservice-db:
-    image: mysql:5.7
-    restart: always
+    image: mysql:8.0-oracle
+    # restart: always
+    container_name: chassisservice-db
     environment:
-      MYSQL_DATABASE: 'chassisservicedb'
-      MYSQL_PASSWORD: 'root'
-      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: chassisservicedb
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - '3302:3306'
+      - '8002:3306'
+    networks:
+      - manufacturerexercise-network
 
   optionpack-service:
     image: optionpack-service:latest
+    container_name: optionpack-service
     build:
       context: .
       dockerfile: OptionPackService/OptionPackService.Api/Dockerfile
@@ -96,16 +132,25 @@ services:
       - "5005:8080"
     depends_on:
       - rabbitmq
+      - optionpackservice-db 
+    networks:
+      - manufacturerexercise-network
+    environment:
+      - DB_HOST=optionpackservice-db
+      - DB_NAME=optionpackservicedb
+      - DB_ROOT_PASSWORD=root
  
   optionpackservice-db:
-    image: mysql:5.7
-    restart: always
+    image: mysql:8.0-oracle
+    # restart: always
+    container_name: optionpackservice-db
     environment:
-      MYSQL_DATABASE: 'optionpackservicedb'
-      MYSQL_PASSWORD: 'root'
-      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: optionpackservicedb
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - '3301:3306'
+      - '8001:3306'
+    networks:
+      - manufacturerexercise-network
  
   rabbitmq:
     image: rabbitmq:3-management

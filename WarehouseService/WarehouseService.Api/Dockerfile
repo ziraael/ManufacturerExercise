@@ -6,13 +6,13 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy the .csproj file and restore dependencies
+# Copy the .csproj files and restore dependencies
 COPY ["WarehouseService/WarehouseService.Api/WarehouseService.Api.csproj", "WarehouseService/WarehouseService.Api/"]
 COPY ["WarehouseService/WarehouseService.Domain/WarehouseService.Domain.csproj", "WarehouseService/WarehouseService.Domain/"]
 COPY ["WarehouseService/WarehouseService.Infrastructure/WarehouseService.Infrastructure.csproj", "WarehouseService/WarehouseService.Infrastructure/"]
 RUN dotnet restore "WarehouseService/WarehouseService.Api/WarehouseService.Api.csproj"
 
-# Copy the remaining source files and build the application
+# Copy the remaining source files and build the application 
 COPY . .
 WORKDIR "/src/WarehouseService/WarehouseService.Api"
 RUN dotnet build "WarehouseService.Api.csproj" -c Release -o /app/build
@@ -21,14 +21,16 @@ RUN dotnet build "WarehouseService.Api.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "WarehouseService.Api.csproj" -c Release -o /app/publish
 
-#ENV ConnectionString="Server=localhost;Port=3303;Database=warehouseservicedb;User Id=root;Password=root;"
-
 # Use the official .NET Core runtime image as a base
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-# Run migrations
-#ENV PATH $PATH:/root/.dotnet/tools
-#RUN dotnet tool install -g dotnet-ef
-#RUN dotnet ef database update --project build/WarehouseService.Api.csproj
+
+# Copy the WarehouseService.Infrastructure and WarehouseService.Domain projects for EF migrations
+COPY --from=build /src/WarehouseService/WarehouseService.Infrastructure /app/WarehouseService.Infrastructure
+COPY --from=build /src/WarehouseService/WarehouseService.Domain /app/WarehouseService.Domain
+
+# Copy the appsettings.json file
+COPY --from=build /src/WarehouseService/WarehouseService.Api/appsettings.json /app/WarehouseService.Infrastructure
+
 ENTRYPOINT ["dotnet", "WarehouseService.Api.dll"]
