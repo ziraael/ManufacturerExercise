@@ -19,9 +19,13 @@ var serviceProvider = builder.Services.BuildServiceProvider();
 var logger = serviceProvider.GetService<ILogger<ApplicationLogger>>();
 builder.Services.AddSingleton(typeof(ILogger), logger);
 
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+var dbPassword = Environment.GetEnvironmentVariable("DB_ROOT_PASSWORD");
+var connectionString = $"Server={dbHost};Port=3306;Database={dbName};User Id=root;Password={dbPassword};";
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                     ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))));
+    options.UseMySQL(connectionString), ServiceLifetime.Transient);
 
 builder.Services.AddScoped<IChassisRepository, ChassisRepository>();
 builder.Services.RegisterRequestHandlers();
