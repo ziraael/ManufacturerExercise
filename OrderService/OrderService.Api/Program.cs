@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Api.Configurations;
 using OrderService.Api.Consumers;
+using OrderService.Api.Hubs;
 using OrderService.Domain;
 using OrderService.Infrastructure;
 using OrderService.Infrastructure.Repositories;
@@ -23,6 +24,16 @@ var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "orderservicedb";
 var dbPassword = Environment.GetEnvironmentVariable("DB_ROOT_PASSWORD") ?? "root";
 var connectionString = $"Server={dbHost};Port=3306;Database={dbName};User Id=root;Password={dbPassword};";
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        builder => builder
+            .WithOrigins("http://localhost:4200") // Angular app URL
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+builder.Services.AddSignalR();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(connectionString), ServiceLifetime.Transient);
 
@@ -56,15 +67,15 @@ if (app.Environment.IsDevelopment())
   
 }
 
+app.UseCors("CorsPolicy");
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors(builder => builder
-     .AllowAnyOrigin()
-     .AllowAnyMethod()
-     .AllowAnyHeader());
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<OrderHub>("/orderHub");
 
 app.Run();

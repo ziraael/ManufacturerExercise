@@ -1,24 +1,24 @@
-﻿using OrderService.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MediatR;
+using EngineService.Api.EngineService.Application.Requests;
 
 namespace EngineService.Api.Controllers
 {
-    public class EngineController : Controller
+    [ApiController]
+    [Route("[controller]")]
+    public class EngineController : ControllerBase
     {
-        //private readonly IEngineService _engineService;
-
-        public EngineController(/*IEngineService engineService*/)
+        private readonly IMediator _mediator;
+        public EngineController(IMediator mediator)
         {
-            //_engineService = engineService;
+            _mediator = mediator;
         }
 
-        [HttpPost(nameof(ProduceEngine))]
-        public IActionResult ProduceEngine([FromBody] Order order)
+        [HttpGet(nameof(GetEngineProductionStatus))]
+        public async Task<bool> GetEngineProductionStatus(string id)
         {
-            //produce engine and send it for assembly
-
-            //_engineService.ProduceEngine(order);
-            return Ok();
+            Guid orderId = new Guid(id);
+            return await _mediator.Send(new GetEngineProductionStatusRequest() { OrderId = orderId });
         }
     }
 }

@@ -24,6 +24,15 @@ var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "chassisservicedb"
 var dbPassword = Environment.GetEnvironmentVariable("DB_ROOT_PASSWORD") ?? "root";
 var connectionString = $"Server={dbHost};Port=3306;Database={dbName};User Id=root;Password={dbPassword};";
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        builder => builder
+            .WithOrigins("http://localhost:4200") // Angular app URL
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(connectionString), ServiceLifetime.Transient);
 
@@ -56,9 +65,9 @@ if (app.Environment.IsDevelopment())
 
 }
 
+app.UseCors("CorsPolicy");
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.UseAuthorization();
 
 app.MapControllers();

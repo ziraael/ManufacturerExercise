@@ -1,6 +1,4 @@
-﻿using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OptionPackService.Domain.Entities;
 using OrderService.Domain.Entities;
 
@@ -9,14 +7,12 @@ namespace OptionPackService.Infrastructure.Repositories;
 public class OptionPackRepository : IOptionPackRepository
 {
     private readonly ApplicationDbContext _context;
-    //private ILogger _logger;
-    private readonly ISendEndpointProvider _sendEndpointProvider;
+    private ILogger _logger;
 
-    public OptionPackRepository(ApplicationDbContext context/*, ILogger logger*/, ISendEndpointProvider sendEndpointProvider)
+    public OptionPackRepository(ApplicationDbContext context, ILogger logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        //_logger = logger;
-        _sendEndpointProvider = sendEndpointProvider ?? throw new ArgumentNullException();
+        _logger = logger;
     }
     public async Task<OptionPack> CreateOptionPack(Order order)
     {
@@ -43,7 +39,27 @@ public class OptionPackRepository : IOptionPackRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create order!");
+            _logger.LogError(ex, "An issue occured while trying to create option pack!");
+            throw;
+        }
+    }
+
+    public Task<bool> GetOptionPackProductionStatus(Guid orderId)
+    {
+        try
+        {
+            var hasProductionEnded = _context.OptionPacks.SingleOrDefault(x => x.OrderId == orderId)?.EndedProduction;
+
+            if (hasProductionEnded == null)
+            {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An issue occured while trying to get option pack production status!");
             throw;
         }
     }

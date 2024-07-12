@@ -1,24 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using OrderService.Domain.Entities;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using OptionPackService.Api.OptionPackService.Application.Requests;
 
 namespace OptionPackService.Api.Controllers
 {
-    public class OptionPackController : Controller
+    [ApiController]
+    [Route("[controller]")]
+    public class OptionPackController : ControllerBase
     {
-        //private readonly IOptionPackService _optionPackService;
+        private readonly IMediator _mediator;
 
-        public OptionPackController(/*IOptionPackService optionPackService*/)
+        public OptionPackController(IMediator mediator)
         {
-            //_optionPackService = optionPackService;
+            _mediator = mediator;
         }
 
-        [HttpPost(nameof(ProduceOptionPack))]
-        public IActionResult ProduceOptionPack([FromBody] Order order)
+        [HttpGet(nameof(GetOptionPackProductionStatus))]
+        public async Task<bool> GetOptionPackProductionStatus(string id)
         {
-            //produce option pack and send for assembly
-
-            //_optionPackService.ProduceOptionPack(order);
-            return Ok();
+            Guid orderId = new Guid(id);
+            return await _mediator.Send(new GetOptionPackProductionStatusRequest() { OrderId = orderId });
         }
     }
 }

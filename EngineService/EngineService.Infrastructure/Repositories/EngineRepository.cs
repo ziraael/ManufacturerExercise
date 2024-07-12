@@ -1,6 +1,4 @@
-﻿using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OrderService.Domain.Entities;
 using EngineService.Domain.Entities;
 
@@ -9,14 +7,12 @@ namespace EngineService.Infrastructure.Repositories;
 public class EngineRepository : IEngineRepository
 {
     private readonly ApplicationDbContext _context;
-    //private ILogger _logger;
-    private readonly ISendEndpointProvider _sendEndpointProvider;
+    private ILogger _logger;
 
-    public EngineRepository(ApplicationDbContext context/*, ILogger logger*/, ISendEndpointProvider sendEndpointProvider)
+    public EngineRepository(ApplicationDbContext context, ILogger logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        //_logger = logger;
-        _sendEndpointProvider = sendEndpointProvider ?? throw new ArgumentNullException();
+        _logger = logger;
     }
     public async Task<Engine> CreateEngine(Order order)
     {
@@ -43,7 +39,27 @@ public class EngineRepository : IEngineRepository
         }
         catch (Exception ex)
         {
-            //_logger.LogError(ex, "An issue occured while trying to create order!");
+            _logger.LogError(ex, "An issue occured while trying to create engine!");
+            throw;
+        }
+    }
+
+    public Task<bool> GetEngineProductionStatus(Guid orderId)
+    {
+        try
+        {
+            var hasProductionEnded = _context.Engines.SingleOrDefault(x => x.OrderId == orderId)?.EndedProduction;
+
+            if(hasProductionEnded == null)
+            {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An issue occured while trying to get engine production status!");
             throw;
         }
     }

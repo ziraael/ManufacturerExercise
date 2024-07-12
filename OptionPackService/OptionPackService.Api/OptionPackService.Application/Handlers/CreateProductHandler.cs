@@ -1,19 +1,15 @@
-﻿using EngineService.Api.EngineService.Application.Requests;
-using MassTransit;
-using MediatR;
+﻿using MediatR;
+using OptionPackService.Api.OptionPackService.Application.Requests;
 using OptionPackService.Domain.Entities;
 
-namespace WarehouseService.Api.WarehouseService.Application.Handlers
+namespace OptionPackService.Api.OptionPackService.Application.Handlers
 {
     public class CreateProductHandler : IRequestHandler<CreateProductRequest, OptionPack>
     {
-        //Inject Validators 
         private readonly IOptionPackRepository _optionPackRepository;
-        private IPublishEndpoint _publishEndpoint;
-        public CreateProductHandler(IOptionPackRepository optionPackRepository, IPublishEndpoint publishEndpoint)
+        public CreateProductHandler(IOptionPackRepository optionPackRepository)
         {
             _optionPackRepository = optionPackRepository;
-            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<OptionPack> Handle(CreateProductRequest request, CancellationToken cancellationToken)

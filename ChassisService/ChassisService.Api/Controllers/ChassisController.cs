@@ -1,24 +1,25 @@
-﻿using OrderService.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MediatR;
+using ChassisService.Api.ChassisService.Application.Requests;
 
 namespace ChassisService.Api.Controllers
 {
-    public class ChassisController : Controller
+    [ApiController]
+    [Route("[controller]")]
+    public class ChassisController : ControllerBase
     {
-        //private readonly IChassisService _chassisService;
+        private readonly IMediator _mediator;
 
-        public ChassisController(/*IChassisService chassisService*/)
+        public ChassisController(IMediator mediator)
         {
-            //_chassisService = chassisService;
+            _mediator = mediator;
         }
 
-        [HttpPost(nameof(ProduceChassis))]
-        public IActionResult ProduceChassis([FromBody] Order order)
+        [HttpGet(nameof(GetChassisProductionStatus))]
+        public async Task<bool> GetChassisProductionStatus(string id)
         {
-            //produce chassis and send for assembly
-
-            //_chassisService.ProduceChassis(order);
-            return Ok();
+            Guid orderId = new Guid(id);
+            return await _mediator.Send(new GetChassisProductionStatusRequest() { OrderId = orderId });
         }
     }
 }

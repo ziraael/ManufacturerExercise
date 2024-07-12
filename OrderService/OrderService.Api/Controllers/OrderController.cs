@@ -15,7 +15,6 @@ namespace OrderService.Api.Controllers
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly ISendEndpointProvider _sendEndpointProvider;
 
-
         public OrderController(IMediator mediator, IPublishEndpoint publishEndpoint, ISendEndpointProvider sendEndpointProvider)
         {
             _mediator = mediator;

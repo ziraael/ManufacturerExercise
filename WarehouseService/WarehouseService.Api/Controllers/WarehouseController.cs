@@ -7,7 +7,7 @@ using OrderService.Domain.Entities;
 namespace WarehouseService.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class WarehouseController : ControllerBase
     {
         private readonly IMediator _mediator;

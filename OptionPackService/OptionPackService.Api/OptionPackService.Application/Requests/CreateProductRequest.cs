@@ -2,7 +2,7 @@
 using OptionPackService.Domain.Entities;
 using OrderService.Domain.Entities;
 
-namespace EngineService.Api.EngineService.Application.Requests
+namespace OptionPackService.Api.OptionPackService.Application.Requests
 {
     public class CreateProductRequest : IRequest<OptionPack>
     {
