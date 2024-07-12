@@ -24,7 +24,7 @@ namespace WarehouseService.Api.Controllers
         }
 
         [HttpPost(nameof(CreateProduct))]
-        public async Task<bool> CreateProduct(Product product)
+        public async Task<bool> CreateProduct([FromBody] Product product)
         {
             var res = await _mediator.Send(new CreateProductRequest() { Product = product });
 

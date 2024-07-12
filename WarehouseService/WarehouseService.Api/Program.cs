@@ -27,10 +27,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
         builder => builder
-            .WithOrigins("http://localhost:4200") // Angular app URL
+            .AllowAnyOrigin()
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowAnyHeader());
 });
 // Register ApplicationDbContext
 var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
@@ -97,6 +96,8 @@ if (app.Environment.IsDevelopment())
 {
 
 }
+
+app.UseCors("CorsPolicy");
 
 app.UseSwagger();
 app.UseSwaggerUI();
