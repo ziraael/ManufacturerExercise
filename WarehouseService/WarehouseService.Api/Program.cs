@@ -52,10 +52,10 @@ builder.Services.AddMassTransit(busConfig =>
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
-        //bool IsRunningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inDocker) && inDocker;
-        //var host = IsRunningInContainer ? "rabbitmq" : "localhost";
+        bool IsRunningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inDocker) && inDocker;
+        var host = IsRunningInContainer ? "host.docker.internal" : "localhost";
 
-        configurator.Host("host.docker.internal", "/", h =>
+        configurator.Host(host, "/", h =>
         {
             h.Username(builder.Configuration["MessageBroker:Username"]);
             h.Password(builder.Configuration["MessageBroker:Password"]);
@@ -81,10 +81,10 @@ builder.Services.AddMassTransit(busConfig =>
             c.ConfigureConsumer<OptionStockConsumer>(context);
         });
 
-        configurator.ReceiveEndpoint("assemble-vehicle-queue", c =>
-        {
-            c.ConfigureConsumer<AssembleConsumer>(context);
-        });
+        //configurator.ReceiveEndpoint("assemble-vehicle-queue", c =>
+        //{
+        //    c.ConfigureConsumer<AssembleConsumer>(context);
+        //});
     });
 });
 

@@ -18,9 +18,9 @@ namespace WarehouseService.Api.Consumers
         }
         public async Task Consume(ConsumeContext<StockDTO> context)
         {
-            _logger.LogInformation("Hey i have the parts from stock, assemble for me: ", context.Message);
+            //_logger.LogInformation("Hey i have the parts from stock, assemble for me: ", context.Message);
 
-            await _mediator.Send(new CreateAssembledVehicleRequest() { Stock = context.Message });
+            //await _mediator.Send(new CreateAssembledVehicleRequest() { Stock = context.Message });
         }
     }
 }

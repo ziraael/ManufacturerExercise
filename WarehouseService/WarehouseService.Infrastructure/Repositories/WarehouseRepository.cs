@@ -314,6 +314,8 @@ public class WarehouseRepository : IWarehouseRepository
                         vehicleExists.OptionPackId = optionPack?.Id;
                     }
 
+                    //sleep 15sec, simulate vehicle assembling
+                    Thread.Sleep(15000);
                     _context.AssembledVehicleStocks.Update(vehicleExists);
                     _context.SaveChanges();
 

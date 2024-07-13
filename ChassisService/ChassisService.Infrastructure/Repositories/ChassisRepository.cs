@@ -10,6 +10,7 @@ public class ChassisRepository : IChassisRepository
     private readonly ApplicationDbContext _context;
     private ILogger _logger;
 
+
     public ChassisRepository(ApplicationDbContext context, ILogger logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -35,6 +36,9 @@ public class ChassisRepository : IChassisRepository
 
             chassis.EndedProduction = DateTime.Now;
             await _context.SaveChangesAsync();
+
+            //inform consumer to signal the front that its ready
+            //await _hubContext.Clients.All.SendAsync("ReceiveMessage", "the weatherman", "").ConfigureAwait(false);
 
             return chassis;
         }

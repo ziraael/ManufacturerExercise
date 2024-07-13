@@ -46,10 +46,13 @@ builder.Services.AddMassTransit(busConfig =>
     //busConfig.SetKebabCaseEndpointNameFormatter();
     busConfig.UsingRabbitMq((context, configurator) =>
     {
-        configurator.Host("host.docker.internal", "/", y =>
+        bool IsRunningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inDocker) && inDocker;
+        var host = IsRunningInContainer ? "host.docker.internal" : "localhost";
+
+        configurator.Host(host, "/", h =>
         {
-            y.Username(builder.Configuration["MessageBroker:Username"]!);
-            y.Username(builder.Configuration["MessageBroker:Password"]!);
+            h.Username(builder.Configuration["MessageBroker:Username"]!);
+            h.Username(builder.Configuration["MessageBroker:Password"]!);
         });
 
         configurator.ReceiveEndpoint("ready-collection-queue", c =>
