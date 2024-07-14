@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using EngineService.Infrastructure;
 using EngineService.Infrastructure.Repositories;
 using EngineService.Api.Consumers;
+using EngineService.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,11 +41,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(connectionString), ServiceLifetime.Transient);
 
+builder.Services.AddSignalR();
 builder.Services.AddScoped<IEngineRepository, EngineRepository>();
 builder.Services.RegisterRequestHandlers();
 builder.Services.AddMassTransit(busConfig =>
 {
     busConfig.AddConsumer<OrderToEngineConsumer>();
+    busConfig.AddConsumer<InformFrontConsumer>();
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
@@ -60,6 +63,11 @@ builder.Services.AddMassTransit(busConfig =>
         configurator.ReceiveEndpoint("produce-engine-queue", c =>
         {
             c.ConfigureConsumer<OrderToEngineConsumer>(context);
+        });
+
+        configurator.ReceiveEndpoint("inform-engine-queue", c =>
+        {
+            c.ConfigureConsumer<InformFrontConsumer>(context);
         });
     });
 });
@@ -80,5 +88,7 @@ app.UseSwaggerUI();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<EngineHub>("/engineHub");
 
 app.Run();

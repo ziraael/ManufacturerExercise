@@ -239,7 +239,7 @@ public class WarehouseRepository : IWarehouseRepository
     {
         try
         {
-            var checkForStock = _context.AssembledVehicleStocks.FirstOrDefault(x => x.EngineId == order.EngineId && x.ChassisId == order.ChassisId && x.OptionPackId == order.OptionPackId);
+            var checkForStock = _context.AssembledVehicleStocks.FirstOrDefault(x => x.IsAvailable == true && x.EngineId == order.EngineId && x.ChassisId == order.ChassisId && x.OptionPackId == order.OptionPackId);
 
             if (checkForStock != null)
             {
@@ -339,6 +339,8 @@ public class WarehouseRepository : IWarehouseRepository
     {
         try
         {
+            _context.AssembledVehicleStocks.Where(x => x.Id == vehicle.Id).ExecuteUpdate(s => s.SetProperty(u => u.IsAvailable, false));
+
             var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/ready-collection-queue"));
 
             await endpoint.Send(vehicle);
@@ -374,6 +376,19 @@ public class WarehouseRepository : IWarehouseRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "An issue occured while trying to reduce stock!");
+            throw;
+        }
+    }
+
+    public async Task<List<Product>> GetProducts()
+    {
+        try
+        {
+            return await _context.Products.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An issue occured while trying to fetch products!");
             throw;
         }
     }

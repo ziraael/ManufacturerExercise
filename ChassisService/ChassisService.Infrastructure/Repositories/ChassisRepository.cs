@@ -2,6 +2,7 @@
 using ChassisService.Domain.Entities;
 using ChassisService.Infrastructure;
 using Microsoft.Extensions.Logging;
+using MassTransit;
 
 namespace WarehouseService.Infrastructure.Repositories;
 
@@ -9,12 +10,13 @@ public class ChassisRepository : IChassisRepository
 {
     private readonly ApplicationDbContext _context;
     private ILogger _logger;
+    private ISendEndpointProvider _sendEndpointProvider;
 
-
-    public ChassisRepository(ApplicationDbContext context, ILogger logger)
+    public ChassisRepository(ApplicationDbContext context, ILogger logger, ISendEndpointProvider sendEndpointProvider)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger;
+        _sendEndpointProvider = sendEndpointProvider;
     }
     public async Task<Chassis> CreateChassis(Order order)
     {
@@ -37,8 +39,9 @@ public class ChassisRepository : IChassisRepository
             chassis.EndedProduction = DateTime.Now;
             await _context.SaveChangesAsync();
 
-            //inform consumer to signal the front that its ready
-            //await _hubContext.Clients.All.SendAsync("ReceiveMessage", "the weatherman", "").ConfigureAwait(false);
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/inform-chassis-queue"));
+
+            await endpoint.Send(chassis);
 
             return chassis;
         }

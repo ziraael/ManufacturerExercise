@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MassTransit;
+using Microsoft.Extensions.Logging;
 using OptionPackService.Domain.Entities;
 using OrderService.Domain.Entities;
 
@@ -8,17 +9,19 @@ public class OptionPackRepository : IOptionPackRepository
 {
     private readonly ApplicationDbContext _context;
     private ILogger _logger;
+    private readonly ISendEndpointProvider _sendEndpointProvider;
 
-    public OptionPackRepository(ApplicationDbContext context, ILogger logger)
+    public OptionPackRepository(ApplicationDbContext context, ILogger logger, ISendEndpointProvider sendEndpointProvider)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger;
+        _sendEndpointProvider = sendEndpointProvider;
     }
     public async Task<OptionPack> CreateOptionPack(Order order)
     {
         try
         {
-            OptionPack engine = new OptionPack
+            OptionPack option = new OptionPack
             {
                 ProductId = order.OptionPackId,
                 StartedProduction = DateTime.Now,
@@ -26,16 +29,20 @@ public class OptionPackRepository : IOptionPackRepository
                 OrderId = order.Id,
             };
 
-            _context.OptionPacks.Add(engine);
+            _context.OptionPacks.Add(option);
             await _context.SaveChangesAsync();
 
             //sleep 15sec, simulate engine producing
             Thread.Sleep(15000);
 
-            engine.EndedProduction = DateTime.Now;
+            option.EndedProduction = DateTime.Now;
             await _context.SaveChangesAsync();
 
-            return engine;
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/inform-option-queue"));
+
+            await endpoint.Send(option);
+
+            return option;
         }
         catch (Exception ex)
         {

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using WarehouseService.Infrastructure.Repositories;
 using ChassisService.Domain;
 using ChassisService.Api.Consumers;
+using ChassisService.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,11 +37,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(connectionString), ServiceLifetime.Transient);
 
+builder.Services.AddSignalR();
 builder.Services.AddScoped<IChassisRepository, ChassisRepository>();
 builder.Services.RegisterRequestHandlers();
 builder.Services.AddMassTransit(busConfig =>
 {
     busConfig.AddConsumer<OrderToChassisConsumer>();
+    busConfig.AddConsumer<InformFrontConsumer>();
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
@@ -56,6 +59,11 @@ builder.Services.AddMassTransit(busConfig =>
         configurator.ReceiveEndpoint("produce-chassis-queue", c =>
         {
             c.ConfigureConsumer<OrderToChassisConsumer>(context);
+        });
+
+        configurator.ReceiveEndpoint("inform-chassis-queue", c =>
+        {
+            c.ConfigureConsumer<InformFrontConsumer>(context);
         });
     });
 });
@@ -74,5 +82,6 @@ app.UseSwaggerUI();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChassisHub>("/chassisHub");
 
 app.Run();

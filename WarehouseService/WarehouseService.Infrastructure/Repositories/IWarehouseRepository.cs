@@ -13,4 +13,5 @@ public interface IWarehouseRepository
     Task<bool> CheckStock(Order order);
     Task<int> AddProductToStock(Engine? engine, Chassis? chassis, OptionPack? optionPack);
     bool CheckAssembledVehicleStock(Order order);
+    Task<List<Product>> GetProducts();
 }

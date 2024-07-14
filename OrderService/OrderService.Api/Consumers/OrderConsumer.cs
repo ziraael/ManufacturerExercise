@@ -1,7 +1,8 @@
 ﻿using MassTransit;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
+using OrderService.Api.Hubs;
 using OrderService.Api.OrderService.Application.Requests;
-using OrderService.Domain.Entities;
 using WarehouseService.Domain.Entities;
 
 namespace OrderService.Api.Consumers
@@ -10,10 +11,15 @@ namespace OrderService.Api.Consumers
     {
         private readonly ILogger<OrderConsumer> _logger;
         private IMediator _mediator;
-        public OrderConsumer(ILogger<OrderConsumer> logger, IMediator mediator)
+        private readonly ISendEndpointProvider _sendEndpointProvider;
+        private IHubContext<OrderHub> _hubContext;
+
+        public OrderConsumer(ILogger<OrderConsumer> logger, IMediator mediator, ISendEndpointProvider sendEndpointProvider, IHubContext<OrderHub> hubContext)
         {
             _logger = logger;
             _mediator = mediator;
+            _sendEndpointProvider = sendEndpointProvider;
+            _hubContext = hubContext;
         }
         public async Task Consume(ConsumeContext<AssembledVehicleStock> context)
         {
@@ -22,6 +28,8 @@ namespace OrderService.Api.Consumers
             if (context.Message.OrderId != null)
             {
                 await _mediator.Send(new ChangeOrderStatusRequest() { OrderId = (Guid)context.Message.OrderId, Type = "IsReadyForCollection", StatusValue = true });
+
+                await _hubContext.Clients.All.SendAsync("IsReadyForCollection", context.Message.OrderId);
             }
         }
     }

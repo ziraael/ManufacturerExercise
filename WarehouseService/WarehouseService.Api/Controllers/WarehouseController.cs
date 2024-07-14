@@ -48,6 +48,12 @@ namespace WarehouseService.Api.Controllers
 
             return false;
         }
+
+        [HttpGet(nameof(GetProducts))]
+        public async Task<List<Product>> GetProducts()
+        {
+            return await _mediator.Send(new GetProductsRequest() { });
+        }
     }
 
 }

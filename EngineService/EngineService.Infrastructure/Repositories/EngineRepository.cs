@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using OrderService.Domain.Entities;
 using EngineService.Domain.Entities;
+using MassTransit;
 
 namespace EngineService.Infrastructure.Repositories;
 
@@ -8,11 +9,13 @@ public class EngineRepository : IEngineRepository
 {
     private readonly ApplicationDbContext _context;
     private ILogger _logger;
+    private readonly ISendEndpointProvider _sendEndpointProvider;
 
-    public EngineRepository(ApplicationDbContext context, ILogger logger)
+    public EngineRepository(ApplicationDbContext context, ILogger logger, ISendEndpointProvider sendEndpointProvider)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger;
+        _sendEndpointProvider = sendEndpointProvider;
     }
     public async Task<Engine> CreateEngine(Order order)
     {
@@ -35,7 +38,12 @@ public class EngineRepository : IEngineRepository
             engine.EndedProduction = DateTime.Now;
             await _context.SaveChangesAsync();
 
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/inform-engine-queue"));
+
+            await endpoint.Send(engine);
+
             return engine;
+
         }
         catch (Exception ex)
         {

@@ -5,6 +5,7 @@ using OptionPackService.Infrastructure;
 using OptionPackService.Infrastructure.Repositories;
 using OptionPackService.Api.Configurations;
 using OptionPackService.Api.Consumers;
+using OptionPackService.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,11 +41,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(connectionString), ServiceLifetime.Transient);
 
+builder.Services.AddSignalR();
 builder.Services.AddScoped<IOptionPackRepository, OptionPackRepository>();
 builder.Services.RegisterRequestHandlers();
 builder.Services.AddMassTransit(busConfig =>
 {
     busConfig.AddConsumer<OrderToOptionPackConsumer>();
+    busConfig.AddConsumer<InformFrontConsumer>();
 
     busConfig.UsingRabbitMq((context, configurator) =>
     {
@@ -60,6 +63,11 @@ builder.Services.AddMassTransit(busConfig =>
         configurator.ReceiveEndpoint("produce-optionpack-queue", c =>
         {
             c.ConfigureConsumer<OrderToOptionPackConsumer>(context);
+        });
+
+        configurator.ReceiveEndpoint("inform-option-queue", c =>
+        {
+            c.ConfigureConsumer<InformFrontConsumer>(context);
         });
     });
 });
@@ -79,5 +87,6 @@ app.UseSwaggerUI();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<OptionHub>("/optionHub");
 
 app.Run();

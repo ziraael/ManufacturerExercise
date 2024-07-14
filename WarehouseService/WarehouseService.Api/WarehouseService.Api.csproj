@@ -8,6 +8,7 @@
     <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
     <PackageReference Include="MassTransit" Version="8.2.3" />
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />

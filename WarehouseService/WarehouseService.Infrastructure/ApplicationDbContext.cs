@@ -36,6 +36,14 @@ namespace WarehouseService.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            var warehouse = new Warehouse
+            {
+                Id = new Guid("0145583a-8e54-4295-b8ba-01fc2d86edfa"),
+                Name = "Warehouse 1",
+                Location = "Kosovo"
+            };
+
+            modelBuilder.Entity<Warehouse>().HasData(warehouse);
         }
     }
 }
