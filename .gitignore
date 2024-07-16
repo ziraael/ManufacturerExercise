@@ -1,6 +1,6 @@
-/ManufacturerExercise-Front/node_modules/
+/ManufacturerExercise-Front/node_modules/*
 /ManufacturerExercise-Front/.angular/
-
+/ManufacturerExercise-Front/package-lock.json/
 *.swp
 *.*~
 project.lock.json
@@ -43,4 +43,4 @@ bld/
 [Oo]ut/
 msbuild.log
 msbuild.err
-msbuild.wrn
+msbuild.wrnnode_modules/
