@@ -1,3 +1,6 @@
+/ManufacturerExercise-Front/node_modules/
+/ManufacturerExercise-Front/.angular/
+
 *.swp
 *.*~
 project.lock.json

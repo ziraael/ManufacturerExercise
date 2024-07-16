@@ -1,0 +1,22 @@
+<div class="orders-list">
+  <div class="message-info" style="margin-bottom:20px;">Start by creating products, and then creating orders...</div>
+  <button (click)="addProduct()" class="btn btn-primary">Add Product</button>
+  <button (click)="createOrder()" class="btn btn-primary" style="margin-left: 10px;">Create New Order</button>
+  <div *ngIf="orders$ | async as orders" class="order-items">
+    <div *ngFor="let order of orders" class="order-item">
+      <p><strong>Engine Status:</strong> <span class="{{order.isEngineProduced ? 'green':'red'}}"> {{
+          order.isEngineProduced ? "READY" : "NOT READY" }} </span></p>
+      <p><strong>Chassis Status:</strong> <span class="{{order.isChassisProduced ? 'green':'red'}}"> {{
+          order.isChassisProduced ? "READY" : "NOT READY" }} </span></p>
+      <p><strong>Option Packs Status:</strong> <span
+          class="{{order.isOptionPackProduced ? 'green':'red'}}"> {{ order.isOptionPackProduced ? "READY" : "NOT READY"}} </span>
+      </p>
+      <p><strong>Is Ready For Collection:</strong> <span class="{{order.isReadyForCollection ? 'green':'red'}}"> {{
+          order.isReadyForCollection ? "READY" : "NOT READY" }}</span></p>
+      <p><strong>Order Date:</strong> {{ order.orderDate | date:"dd/MM/yyyy 'at' hh:mm a" }}</p>
+      <button *ngIf="!order.isReadyForCollection" (click)="cancelOrder(order.id)" class="btn btn-sm btn-danger">
+        Cancel Order</button>
+    </div>
+  </div>
+  <div *ngIf="message" class="message" style="margin-top:20px;">{{ message }}</div>
+</div>

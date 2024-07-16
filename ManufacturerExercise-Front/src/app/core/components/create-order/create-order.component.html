@@ -1,0 +1,21 @@
+<form (ngSubmit)="createOrder()" class="order-form">
+  <div class="form-group">
+    <label for="engine">Engine</label>
+    <select id="engine" [(ngModel)]="selectedEngine" name="engine" class="form-control" required>
+      <option *ngFor="let engine of engines" [value]="engine.id">{{ engine.name }}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="chassis">Chassis</label>
+    <select id="chassis" [(ngModel)]="selectedChassis" name="chassis" class="form-control" required>
+      <option *ngFor="let chassis of chasses" [value]="chassis.id">{{ chassis.name }}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="optionPacks">Option Packs</label>
+    <select id="optionPacks" [(ngModel)]="selectedOptionPack" name="optionPacks" class="form-control" required>
+      <option *ngFor="let optionPack of optionPacks" [value]="optionPack.id">{{ optionPack.name }}</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Create Order</button>
+</form>
