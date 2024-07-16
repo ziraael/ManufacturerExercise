@@ -1,31 +1,32 @@
 ﻿using ChassisService.Domain.Entities;
 using EngineService.Domain.Entities;
 using MassTransit;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OptionPackService.Domain.Entities;
 using OrderService.Domain.Entities;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System;
 using WarehouseService.Domain.DTOs;
 using WarehouseService.Domain.Entities;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using MassTransit.Transports;
 
 namespace WarehouseService.Infrastructure.Repositories;
 
 public class WarehouseRepository : IWarehouseRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly HttpClient _httpClient;
     private ILogger _logger;
     private readonly ISendEndpointProvider _sendEndpointProvider;
     static object _lock = new Object();
-    public WarehouseRepository(ApplicationDbContext context, ILogger logger, ISendEndpointProvider sendEndpointProvider, IMediator mediator)
+
+    public WarehouseRepository(ApplicationDbContext context, ILogger logger, ISendEndpointProvider sendEndpointProvider,
+        HttpClient httpClient)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger;
         _sendEndpointProvider = sendEndpointProvider ?? throw new ArgumentNullException();
+        _httpClient = httpClient;
     }
 
     public async Task<int> AddProductToStock(Engine? engine, Chassis? chassis, OptionPack? optionPack)
@@ -88,7 +89,10 @@ public class WarehouseRepository : IWarehouseRepository
                 };
             }
 
-            AssembleVehicle(stockDto);
+            if (!IsOrderCancelledAsync(stockDto.OrderId).Result)
+            {
+                AssembleVehicle(stockDto);
+            }
             return savedChanges;
         }
         catch (Exception ex)
@@ -96,6 +100,19 @@ public class WarehouseRepository : IWarehouseRepository
             _logger.LogError(ex, "An issue occured while trying to add product to stock!");
             throw;
         }
+    }
+
+    public async Task<bool> IsOrderCancelledAsync(Guid orderId)
+    {
+        var response = await _httpClient.GetAsync($"http://localhost:5229/Order/GetOrderById?orderId={orderId}");
+        response.EnsureSuccessStatusCode();
+        var orderResponse = await response.Content.ReadAsStringAsync();
+        Order obj = JsonConvert.DeserializeObject<Order>(orderResponse);
+        if (obj != null)
+        {
+            return obj.IsCanceled;
+        }
+        return false;
     }
 
     public async Task<bool> CheckStock(Order order)
@@ -131,7 +148,11 @@ public class WarehouseRepository : IWarehouseRepository
                             OrderId = order.Id
                         };
 
-                         AssembleVehicle(stock);
+                        //var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("rabbitmq://localhost/inform-engine-queue"));
+
+                        //await endpoint.Send(order);
+
+                        AssembleVehicle(stock);
                     }
                 }
 
@@ -160,7 +181,7 @@ public class WarehouseRepository : IWarehouseRepository
                             OrderId = order.Id
                         };
 
-                         AssembleVehicle(stock);
+                        AssembleVehicle(stock);
                     }
                 }
 
@@ -188,7 +209,8 @@ public class WarehouseRepository : IWarehouseRepository
                             Quantity = hasStock.Quantity,
                             OrderId = order.Id
                         };
-                         AssembleVehicle(stock);
+
+                        AssembleVehicle(stock);
                     }
                 }
             }
@@ -235,6 +257,42 @@ public class WarehouseRepository : IWarehouseRepository
         }
     }
 
+    public Task<bool> ReadOnlyStock(Guid productId)
+    {
+        try
+        {
+            bool res = false;
+
+            var hasStock = _context.Stocks.Where(x => x.ProductId == productId).Any();
+
+            //check if it has already started in assembly by chance
+            if(!hasStock)
+            {
+                var isInAssembly = _context.AssembledVehicleStocks.Where(x => x.IsAvailable == true && x.EngineId == productId || x.ChassisId == productId || x.OptionPackId == productId).Any();
+
+                if (isInAssembly)
+                {
+                    res = true;
+                }
+                else
+                {
+                    res = false;
+                }
+            }
+            else
+            {
+                res = true;
+            }
+
+            return Task.FromResult(res);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An issue occured while trying to read for stock!");
+            throw;
+        }
+    }
+
     public bool CheckAssembledVehicleStock(Order order)
     {
         try
@@ -266,20 +324,6 @@ public class WarehouseRepository : IWarehouseRepository
                 var chassis = _context.Products.FirstOrDefault(x => x.Id == stock.ProductId && x.Type == ProductType.Chassis);
                 var optionPack = _context.Products.FirstOrDefault(x => x.Id == stock.ProductId && x.Type == ProductType.OptionPack);
                 AssembledVehicleStock avs = new AssembledVehicleStock();
-
-                //reduce from stock since im using it to assemble a vehicle
-                if (engine?.Id != null)
-                {
-                    ReduceFromStock(avs.EngineId ?? engine?.Id);
-                }
-                else if (chassis?.Id != null)
-                {
-                    ReduceFromStock(avs.ChassisId ?? chassis?.Id);
-                }
-                else if (optionPack?.Id != null)
-                {
-                    ReduceFromStock(avs.OptionPackId ?? optionPack?.Id);
-                }
 
                 //create assemble vehicle
                 if (vehicleExists == null)
@@ -324,6 +368,20 @@ public class WarehouseRepository : IWarehouseRepository
                     {
                         MakeReadyForCollection(vehicleExists);
                     }
+                }
+
+                //reduce from stock since im using it to assemble a vehicle
+                if (engine?.Id != null)
+                {
+                    ReduceFromStock(avs.EngineId ?? engine?.Id);
+                }
+                else if (chassis?.Id != null)
+                {
+                    ReduceFromStock(avs.ChassisId ?? chassis?.Id);
+                }
+                else if (optionPack?.Id != null)
+                {
+                    ReduceFromStock(avs.OptionPackId ?? optionPack?.Id);
                 }
             }
             return 1;

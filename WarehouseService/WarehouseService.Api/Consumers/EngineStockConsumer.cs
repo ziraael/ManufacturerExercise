@@ -2,8 +2,6 @@
 using MassTransit;
 using MassTransit.Transports;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using OrderService.Domain.Entities;
 using WarehouseService.Api.WarehouseService.Application.Requests;
 
 namespace WarehouseService.Api
@@ -12,12 +10,11 @@ namespace WarehouseService.Api
     {
         private readonly ILogger<EngineStockConsumer> _logger;
         private IMediator _mediator;
-        private ISendEndpointProvider _sendEndpointProvider;
-        public EngineStockConsumer(ILogger<EngineStockConsumer> logger, IMediator mediator, ISendEndpointProvider sendEndpointProvider)
+
+        public EngineStockConsumer(ILogger<EngineStockConsumer> logger, IMediator mediator)
         {
             _logger = logger;
             _mediator = mediator;
-            _sendEndpointProvider = sendEndpointProvider;
         }
         public async Task Consume(ConsumeContext<Engine> context)
         {

@@ -1,5 +1,4 @@
-﻿using MassTransit;
-using MediatR;
+﻿using MediatR;
 using WarehouseService.Api.WarehouseService.Application.Requests;
 
 namespace WarehouseService.Api.WarehouseService.Application.Handlers
@@ -8,11 +7,9 @@ namespace WarehouseService.Api.WarehouseService.Application.Handlers
     {
         //Inject Validators 
         private readonly IWarehouseRepository _warehouseRepository;
-        private IPublishEndpoint _publishEndpoint;
-        public CheckStockHandler(IWarehouseRepository warehouseRepository, IPublishEndpoint publishEndpoint)
+        public CheckStockHandler(IWarehouseRepository warehouseRepository)
         {
             _warehouseRepository = warehouseRepository;
-            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<bool> Handle(CheckStockRequest request, CancellationToken cancellationToken)

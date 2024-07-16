@@ -11,14 +11,12 @@ namespace OrderService.Api.Consumers
     {
         private readonly ILogger<OrderConsumer> _logger;
         private IMediator _mediator;
-        private readonly ISendEndpointProvider _sendEndpointProvider;
         private IHubContext<OrderHub> _hubContext;
 
-        public OrderConsumer(ILogger<OrderConsumer> logger, IMediator mediator, ISendEndpointProvider sendEndpointProvider, IHubContext<OrderHub> hubContext)
+        public OrderConsumer(ILogger<OrderConsumer> logger, IMediator mediator,IHubContext<OrderHub> hubContext)
         {
             _logger = logger;
             _mediator = mediator;
-            _sendEndpointProvider = sendEndpointProvider;
             _hubContext = hubContext;
         }
         public async Task Consume(ConsumeContext<AssembledVehicleStock> context)

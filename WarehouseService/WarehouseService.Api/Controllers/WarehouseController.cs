@@ -23,6 +23,13 @@ namespace WarehouseService.Api.Controllers
             return await _mediator.Send(new CheckStockRequest() { Order = order });
         }
 
+        [HttpGet(nameof(ReadOnlyStock))]
+        public async Task<bool> ReadOnlyStock(string prodId)
+        {
+            Guid id = new Guid(prodId);
+            return await _mediator.Send(new ReadOnlyStockRequest() { ProductId = id });
+        }
+
         [HttpPost(nameof(CreateProduct))]
         public async Task<bool> CreateProduct([FromBody] Product product)
         {

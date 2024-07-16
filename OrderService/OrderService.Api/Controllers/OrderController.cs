@@ -3,6 +3,7 @@ using MassTransit.Transports;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Api.OrderService.Application.Requests;
+using OrderService.Domain.DTOs;
 using OrderService.Domain.Entities;
 
 namespace OrderService.Api.Controllers
@@ -21,11 +22,13 @@ namespace OrderService.Api.Controllers
             _publishEndpoint = publishEndpoint;
             _sendEndpointProvider = sendEndpointProvider;
         }
+
         [HttpGet(nameof(GetOrders))]
         public async Task<List<Order>> GetOrders()
         {
             return await _mediator.Send(new GetAllOrdersRequest() { });
         }
+
         [HttpGet(nameof(GetOrderById))]
         public async Task<Order?> GetOrderById(Guid orderId)
         {
@@ -39,9 +42,10 @@ namespace OrderService.Api.Controllers
         }
 
         [HttpPost(nameof(ChangeOrderStatus))]
-        public async Task<bool> ChangeOrderStatus(Guid orderId, string type, bool statusValue)
+        public async Task<bool> ChangeOrderStatus(ChangeOrderStatusDTO request)
         {
-            return await _mediator.Send(new ChangeOrderStatusRequest() { OrderId = orderId, Type = type, StatusValue = statusValue });
+            Guid id = new Guid(request.OrderId);
+            return await _mediator.Send(new ChangeOrderStatusRequest() { OrderId = id, Type = request.Type, StatusValue = request.StatusValue });
         }
     }
 }

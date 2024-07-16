@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WarehouseService.Api;
 using WarehouseService.Api.Configurations;
 using WarehouseService.Api.Consumers;
+using WarehouseService.Api.Hubs;
 using WarehouseService.Domain;
 using WarehouseService.Infrastructure;
 using WarehouseService.Infrastructure.Repositories;
@@ -23,23 +24,30 @@ var serviceProvider = builder.Services.BuildServiceProvider();
 var logger = serviceProvider.GetService<ILogger<ApplicationLogger>>();
 builder.Services.AddSingleton(typeof(ILogger), logger);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy",
-        builder => builder
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
 // Register ApplicationDbContext
 var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
 var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "warehouseservicedb";
 var dbPassword = Environment.GetEnvironmentVariable("DB_ROOT_PASSWORD") ?? "root";
 var connectionString = $"Server={dbHost};Port=3306;Database={dbName};User Id=root;Password={dbPassword};";
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        builder => builder
+            .WithOrigins("http://localhost:4200") // Angular app URL
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(connectionString),ServiceLifetime.Transient);
 
+builder.Services.AddSignalR();
+builder.Services.AddHttpClient<WarehouseRepository>(client =>
+{
+    client.BaseAddress = new Uri("http://orders-service");
+});
 builder.Services.AddScoped<IWarehouseRepository, WarehouseRepository>();
 builder.Services.RegisterRequestHandlers();
 builder.Services.AddMassTransit(busConfig =>
@@ -47,7 +55,6 @@ builder.Services.AddMassTransit(busConfig =>
     busConfig.AddConsumer<OrderConsumer>();
     busConfig.AddConsumer<EngineStockConsumer>();
     busConfig.AddConsumer<ChassisStockConsumer>();
-    busConfig.AddConsumer<AssembleConsumer>();
     busConfig.AddConsumer<OptionStockConsumer>();
 
     busConfig.UsingRabbitMq((context, configurator) =>
@@ -80,11 +87,6 @@ builder.Services.AddMassTransit(busConfig =>
         {
             c.ConfigureConsumer<OptionStockConsumer>(context);
         });
-
-        //configurator.ReceiveEndpoint("assemble-vehicle-queue", c =>
-        //{
-        //    c.ConfigureConsumer<AssembleConsumer>(context);
-        //});
     });
 });
 
@@ -105,5 +107,7 @@ app.UseSwaggerUI();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<WarehouseHub>("/warehouseHub");
 
 app.Run();

@@ -32,7 +32,7 @@ public class OrderRepository: IOrderRepository
     {
         try
         {
-            return await _context.Orders.ToListAsync();
+            return await _context.Orders.Where(x => !x.IsCanceled).ToListAsync();
         }
         catch (Exception ex)
         {
